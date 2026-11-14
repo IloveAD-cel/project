@@ -1,3 +1,5 @@
 mỗi lần thì ghi một cái log dưới này:
 
-14/11/2026 - 9:54 - Tạo cái github lon này
+14/11/2026 - 21:54 - Tạo cái github lon này
+
+14/11/2026 - 22:00 - Bắt đầu làm đi
