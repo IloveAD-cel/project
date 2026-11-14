@@ -2,10 +2,11 @@
 
 <html>
     <head>
-        
+        <title>Efootball Hub</title>
         <script src="main_data.js" defer></script>
+        <link rel="stylesheet" href="main_style.css">
     </head>
     <body>
-
+        
     </body>
 </html>
