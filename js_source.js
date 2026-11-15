@@ -1112,209 +1112,227 @@ let currentTab = 'players';
         }
 
         function renderPlayerModalContent() {
-            const { stats, dynamicOvr } = computeTrainedStats();
-            const availPts = getTotalAvailablePoints();
-            const usedPts = getUsedPoints();
-            const remPts = availPts - usedPts;
+    // 1. Lưu lại vị trí cuộn của modal chính VÀ khung danh sách chỉ số (training list)
+    const modalContentEl = document.getElementById('playerModalContent');
+    const modalScrollPos = modalContentEl ? modalContentEl.scrollTop : 0;
 
-            const statGroups = [
-                {
-                    title: "Attacking & Dribbling",
-                    items: [
-                        ["Attacking Awareness", stats.attackingAwareness],
-                        ["Ball Control", stats.ballControl],
-                        ["Dribbling", stats.dribbling],
-                        ["Tight Possession", stats.tightPossession],
-                        ["Low Pass", stats.lowPass],
-                        ["Lofted Pass", stats.loftedPass],
-                        ["Finishing", stats.finishing],
-                        ["Heading", stats.heading],
-                        ["Place Kicking", stats.placeKicking],
-                        ["Curl", stats.curl]
-                    ]
-                },
-                {
-                    title: "Athleticism & Physical",
-                    items: [
-                        ["Speed", stats.speed],
-                        ["Acceleration", stats.acceleration],
-                        ["Kicking Power", stats.kickingPower],
-                        ["Jump", stats.jump],
-                        ["Physical Contact", stats.physicalContact],
-                        ["Balance", stats.balance],
-                        ["Stamina", stats.stamina]
-                    ]
-                },
-                {
-                    title: "Defending & Goalkeeping",
-                    items: [
-                        ["Defensive Awareness", stats.defensiveAwareness],
-                        ["Tackling", stats.tackling],
-                        ["Aggression", stats.aggression],
-                        ["Defensive Engagement", stats.defensiveEngagement],
-                        ["GK Awareness", stats.gkAwareness],
-                        ["GK Catching", stats.gkCatching],
-                        ["GK Parrying", stats.gkParrying],
-                        ["GK Reflexes", stats.gkReflexes],
-                        ["GK Reach", stats.gkReach]
-                    ]
-                }
-            ];
+    const trainingListEl = document.getElementById('trainingListContainer');
+    const trainingScrollPos = trainingListEl ? trainingListEl.scrollTop : 0;
 
-            const trainingCategories = activePlayer.pos === 'GK'
-                ? [
-                    { key: 'gk1', label: 'GK 1 (Jump, GK Awareness)', icon: 'fa-hands' },
-                    { key: 'gk2', label: 'GK 2 (GK Parrying, GK Reach)', icon: 'fa-shield-halved' },
-                    { key: 'gk3', label: 'GK 3 (GK Catching, GK Reflexes)', icon: 'fa-bolt' },
-                    { key: 'aerial', label: 'Aerial Strength (Physical, Jump)', icon: 'fa-arrow-up' }
-                ]
-                : [
-                    { key: 'shooting', label: 'Shooting (Finishing, Curl, Set Piece)', icon: 'fa-futbol' },
-                    { key: 'passing', label: 'Passing (Low Pass, Lofted Pass)', icon: 'fa-share' },
-                    { key: 'dribbling', label: 'Dribbling (Ball Control, Tight Poss.)', icon: 'fa-person-running' },
-                    { key: 'dexterity', label: 'Dexterity (Off. Aware, Accel, Balance)', icon: 'fa-wand-magic-sparkles' },
-                    { key: 'lowerBody', label: 'Lower Body (Speed, Kick Power, Stamina)', icon: 'fa-gauge-high' },
-                    { key: 'aerial', label: 'Aerial Strength (Heading, Jump, Phys.)', icon: 'fa-up-long' },
-                    { key: 'defending', label: 'Defending (Def. Aware, Tackling, Aggr.)', icon: 'fa-shield' }
-                ];
+    const { stats, dynamicOvr } = computeTrainedStats();
+    const availPts = getTotalAvailablePoints();
+    const usedPts = getUsedPoints();
+    const remPts = availPts - usedPts;
 
-            document.getElementById('playerModalContent').innerHTML = `
-                <!-- Top Player Card, Era Bio & Booster Slots 1 & 2 -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-[#141d36] border border-slate-700/70 rounded-2xl p-4">
-                    <div class="lg:col-span-5 flex flex-col justify-between gap-3">
-                        <div class="flex items-center gap-4">
-                            <div class="${getCardThemeClass(activePlayer)} relative overflow-hidden w-28 h-36 rounded-xl p-2 flex flex-col justify-between shrink-0 shadow-lg">
-                                <!-- Real Footballer Celebration / Trophy Photo -->
-                                <div class="absolute inset-x-0 top-1 bottom-4 flex items-end justify-center pointer-events-none z-0 overflow-hidden">
-                                    <img
-                                        data-entity="player-${activePlayer.id}"
-                                        src="${activePlayer.image || ''}"
-                                        alt="${activePlayer.name}"
-                                        referrerpolicy="no-referrer"
-                                        onerror="handlePortraitError(this)"
-                                        class="player-portrait-img w-full h-full object-cover object-top ${activePlayer.image ? '' : 'hidden'}"
-                                    >
-                                    <div class="${activePlayer.image ? 'hidden' : 'flex'} w-[84%] h-[88%] items-end justify-center">
-                                        ${getFallbackPlayerSVG(activePlayer)}
-                                    </div>
-                                </div>
-                                <div class="relative z-10 leading-none bg-black/55 backdrop-blur-[2px] px-1.5 py-0.5 rounded self-start border border-white/15">
-                                    <div class="font-display font-extrabold text-2xl text-white">${dynamicOvr}</div>
-                                    <div class="font-display font-bold text-xs text-amber-300">${activePlayer.pos}</div>
-                                </div>
-                                <div class="relative z-10 text-[8px] text-center font-bold text-amber-200 truncate bg-black/85 rounded px-1 py-0.5 border border-amber-400/30">${activePlayer.momentTitle}</div>
-                            </div>
-                            <div class="space-y-1 text-xs">
-                                <div class="inline-block px-2 py-0.5 rounded bg-ef-lime/15 text-ef-lime font-bold">${activePlayer.cardType} • ${activePlayer.eraDate || '2026'}</div>
-                                <div class="text-amber-300 font-bold text-[11px]">${activePlayer.momentTitle}</div>
-                                <p class="text-slate-300"><span class="text-slate-400">Club:</span> ${activePlayer.club}</p>
-                                <p class="text-slate-300"><span class="text-slate-400">Nation:</span> ${activePlayer.flag} ${activePlayer.nation}</p>
-                                <p class="text-slate-300"><span class="text-slate-400">Age / Height:</span> <strong class="text-white">${activePlayer.age} yrs</strong> • ${activePlayer.height}cm</p>
-                                <p class="text-slate-300"><span class="text-slate-400">Foot / Form:</span> ${activePlayer.foot} • <span class="text-ef-lime font-bold">${activePlayer.form}</span></p>
+    const statGroups = [
+        {
+            title: "Attacking & Dribbling",
+            items: [
+                ["Attacking Awareness", stats.attackingAwareness],
+                ["Ball Control", stats.ballControl],
+                ["Dribbling", stats.dribbling],
+                ["Tight Possession", stats.tightPossession],
+                ["Low Pass", stats.lowPass],
+                ["Lofted Pass", stats.loftedPass],
+                ["Finishing", stats.finishing],
+                ["Heading", stats.heading],
+                ["Place Kicking", stats.placeKicking],
+                ["Curl", stats.curl]
+            ]
+        },
+        {
+            title: "Athleticism & Physical",
+            items: [
+                ["Speed", stats.speed],
+                ["Acceleration", stats.acceleration],
+                ["Kicking Power", stats.kickingPower],
+                ["Jump", stats.jump],
+                ["Physical Contact", stats.physicalContact],
+                ["Balance", stats.balance],
+                ["Stamina", stats.stamina]
+            ]
+        },
+        {
+            title: "Defending & Goalkeeping",
+            items: [
+                ["Defensive Awareness", stats.defensiveAwareness],
+                ["Tackling", stats.tackling],
+                ["Aggression", stats.aggression],
+                ["Defensive Engagement", stats.defensiveEngagement],
+                ["GK Awareness", stats.gkAwareness],
+                ["GK Catching", stats.gkCatching],
+                ["GK Parrying", stats.gkParrying],
+                ["GK Reflexes", stats.gkReflexes],
+                ["GK Reach", stats.gkReach]
+            ]
+        }
+    ];
+
+    const trainingCategories = activePlayer.pos === 'GK'
+        ? [
+            { key: 'gk1', label: 'GK 1 (Jump, GK Awareness)', icon: 'fa-hands' },
+            { key: 'gk2', label: 'GK 2 (GK Parrying, GK Reach)', icon: 'fa-shield-halved' },
+            { key: 'gk3', label: 'GK 3 (GK Catching, GK Reflexes)', icon: 'fa-bolt' },
+            { key: 'aerial', label: 'Aerial Strength (Physical, Jump)', icon: 'fa-arrow-up' }
+        ]
+        : [
+            { key: 'shooting', label: 'Shooting (Finishing, Curl, Set Piece)', icon: 'fa-futbol' },
+            { key: 'passing', label: 'Passing (Low Pass, Lofted Pass)', icon: 'fa-share' },
+            { key: 'dribbling', label: 'Dribbling (Ball Control, Tight Poss.)', icon: 'fa-person-running' },
+            { key: 'dexterity', label: 'Dexterity (Off. Aware, Accel, Balance)', icon: 'fa-wand-magic-sparkles' },
+            { key: 'lowerBody', label: 'Lower Body (Speed, Kick Power, Stamina)', icon: 'fa-gauge-high' },
+            { key: 'aerial', label: 'Aerial Strength (Heading, Jump, Phys.)', icon: 'fa-up-long' },
+            { key: 'defending', label: 'Defending (Def. Aware, Tackling, Aggr.)', icon: 'fa-shield' }
+        ];
+
+    document.getElementById('playerModalContent').innerHTML = `
+        <!-- Top Player Card, Era Bio & Booster Slots 1 & 2 -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-[#141d36] border border-slate-700/70 rounded-2xl p-4">
+            <div class="lg:col-span-5 flex flex-col justify-between gap-3">
+                <div class="flex items-center gap-4">
+                    <div class="${getCardThemeClass(activePlayer)} relative overflow-hidden w-28 h-36 rounded-xl p-2 flex flex-col justify-between shrink-0 shadow-lg">
+                        <!-- Real Footballer Celebration / Trophy Photo -->
+                        <div class="absolute inset-x-0 top-1 bottom-4 flex items-end justify-center pointer-events-none z-0 overflow-hidden">
+                            <img
+                                data-entity="player-${activePlayer.id}"
+                                src="${activePlayer.image || ''}"
+                                alt="${activePlayer.name}"
+                                referrerpolicy="no-referrer"
+                                onerror="handlePortraitError(this)"
+                                class="player-portrait-img w-full h-full object-cover object-top ${activePlayer.image ? '' : 'hidden'}"
+                            >
+                            <div class="${activePlayer.image ? 'hidden' : 'flex'} w-[84%] h-[88%] items-end justify-center">
+                                ${getFallbackPlayerSVG(activePlayer)}
                             </div>
                         </div>
-
-                        <!-- Booster Slot 1 & Booster Slot 2 Controls (Matching Screenshot 1) -->
-                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
-                            <button onclick="openBoosterModal(1)" class="bg-[#0d1324] hover:bg-[#192340] border ${selectedSlot1Booster ? 'border-amber-400/60' : 'border-slate-700'} rounded-xl p-2 text-left transition">
-                                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
-                                    <span>Booster Slot 1</span>
-                                    <i class="fa-solid fa-bolt text-amber-400"></i>
-                                </div>
-                                <div class="text-xs font-bold text-white truncate mt-0.5">
-                                    ${selectedSlot1Booster ? selectedSlot1Booster.name : '+ Select Booster'}
-                                </div>
-                            </button>
-
-                            <button onclick="openBoosterModal(2)" class="bg-[#0d1324] hover:bg-[#192340] border ${selectedSlot2Booster ? 'border-ef-lime' : 'border-dashed border-slate-600'} rounded-xl p-2 text-left transition">
-                                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
-                                    <span>Booster Slot 2</span>
-                                    <i class="fa-solid fa-plus text-ef-lime"></i>
-                                </div>
-                                <div class="text-xs font-bold ${selectedSlot2Booster ? 'text-ef-lime' : 'text-slate-300'} truncate mt-0.5">
-                                    ${selectedSlot2Booster ? selectedSlot2Booster.name : '+ Add Booster'}
-                                </div>
-                            </button>
+                        <div class="relative z-10 leading-none bg-black/55 backdrop-blur-[2px] px-1.5 py-0.5 rounded self-start border border-white/15">
+                            <div class="font-display font-extrabold text-2xl text-white">${dynamicOvr}</div>
+                            <div class="font-display font-bold text-xs text-amber-300">${activePlayer.pos}</div>
                         </div>
+                        <div class="relative z-10 text-[8px] text-center font-bold text-amber-200 truncate bg-black/85 rounded px-1 py-0.5 border border-amber-400/30">${activePlayer.momentTitle}</div>
                     </div>
-
-                    <!-- Center: 13-Position Proficiency Grid + Position Boosters (Matching Screenshots 2 & 3) -->
-                    <div class="lg:col-span-4">
-                        ${renderPositionPitchGrid(dynamicOvr)}
-                    </div>
-
-                    <!-- Right: Interactive Level Training & Progression Point Allocator -->
-                    <div class="lg:col-span-3 bg-[#0c1224] border border-slate-800 rounded-xl p-3 flex flex-col justify-between space-y-2.5">
-                        <div>
-                            <div class="flex items-center justify-between gap-1 mb-1">
-                                <span class="text-[11px] font-extrabold uppercase tracking-wider text-ef-lime"><i class="fa-solid fa-sliders mr-1"></i> Progression</span>
-                                <span class="text-[11px] font-bold text-slate-300">Lv.${currentLevel}/${activePlayer.maxLevel}</span>
-                            </div>
-                            <div class="text-[11px] text-slate-400 mb-2">
-                                Pts Left: <strong class="${remPts > 0 ? 'text-ef-lime' : 'text-ef-cyan'}">${remPts}</strong> (${usedPts}/${availPts})
-                            </div>
-
-                            <!-- Level Slider -->
-                            <input type="range" min="1" max="${activePlayer.maxLevel}" value="${currentLevel}" oninput="changePlayerLevel(this.value)" class="w-full accent-[#b6e619] cursor-pointer h-1.5 bg-slate-700 rounded-lg mb-2">
-
-                            <div class="flex items-center gap-1.5 mb-2">
-                                <button onclick="autoAllocateOptimalPoints(); renderPlayerModalContent();" class="flex-1 py-1 rounded-lg bg-ef-lime text-ef-dark font-bold text-[11px] hover:bg-ef-limeHover transition">
-                                    Auto
-                                </button>
-                                <button onclick="resetProgressionPoints(true)" class="flex-1 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-semibold text-[11px] transition">
-                                    Reset
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Compact Progression Category Steppers -->
-                        <div class="space-y-1.5 overflow-y-auto max-h-44 pr-0.5">
-                            ${trainingCategories.map(cat => `
-                                <div class="flex items-center justify-between bg-[#141d36] px-2 py-1 rounded-lg border border-slate-800/80 text-[11px]">
-                                    <span class="text-slate-200 truncate pr-1" title="${cat.label}">${cat.label.split(' (')[0]}</span>
-                                    <div class="flex items-center gap-1 shrink-0">
-                                        <button onclick="adjustProgression('${cat.key}', -1)" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center">-</button>
-                                        <span class="w-4 text-center font-extrabold text-ef-lime">${progressionPoints[cat.key]}</span>
-                                        <button onclick="adjustProgression('${cat.key}', 1)" class="w-5 h-5 rounded bg-slate-800 hover:bg-ef-lime hover:text-ef-dark text-white font-bold flex items-center justify-center">+</button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
+                    <div class="space-y-1 text-xs">
+                        <div class="inline-block px-2 py-0.5 rounded bg-ef-lime/15 text-ef-lime font-bold">${activePlayer.cardType} • ${activePlayer.eraDate || '2026'}</div>
+                        <div class="text-amber-300 font-bold text-[11px]">${activePlayer.momentTitle}</div>
+                        <p class="text-slate-300"><span class="text-slate-400">Club:</span> ${activePlayer.club}</p>
+                        <p class="text-slate-300"><span class="text-slate-400">Nation:</span> ${activePlayer.flag} ${activePlayer.nation}</p>
+                        <p class="text-slate-300"><span class="text-slate-400">Age / Height:</span> <strong class="text-white">${activePlayer.age} yrs</strong> • ${activePlayer.height}cm</p>
+                        <p class="text-slate-300"><span class="text-slate-400">Foot / Form:</span> ${activePlayer.foot} • <span class="text-ef-lime font-bold">${activePlayer.form}</span></p>
                     </div>
                 </div>
 
-                <!-- All 26 eFootball Attributes Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    ${statGroups.map(group => `
-                        <div class="bg-[#131b31] border border-slate-800 rounded-xl p-3.5">
-                            <h3 class="font-display font-bold uppercase tracking-wider text-sm text-ef-lime border-b border-slate-800 pb-2 mb-2.5">${group.title}</h3>
-                            <div class="space-y-1.5">
-                                ${group.items.map(([label, val]) => `
-                                    <div class="flex items-center justify-between text-xs py-0.5 border-b border-slate-800/40 last:border-none">
-                                        <span class="text-slate-300">${label}</span>
-                                        <span class="font-mono text-sm ${getStatColorClass(val)}">${val}</span>
-                                    </div>
-                                `).join('')}
+                <!-- Booster Slot 1 & Booster Slot 2 Controls -->
+                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+                    <button onclick="openBoosterModal(1)" class="bg-[#0d1324] hover:bg-[#192340] border ${selectedSlot1Booster ? 'border-amber-400/60' : 'border-slate-700'} rounded-xl p-2 text-left transition">
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                            <span>Booster Slot 1</span>
+                            <i class="fa-solid fa-bolt text-amber-400"></i>
+                        </div>
+                        <div class="text-xs font-bold text-white truncate mt-0.5">
+                            ${selectedSlot1Booster ? selectedSlot1Booster.name : '+ Select Booster'}
+                        </div>
+                    </button>
+
+                    <button onclick="openBoosterModal(2)" class="bg-[#0d1324] hover:bg-[#192340] border ${selectedSlot2Booster ? 'border-ef-lime' : 'border-dashed border-slate-600'} rounded-xl p-2 text-left transition">
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                            <span>Booster Slot 2</span>
+                            <i class="fa-solid fa-plus text-ef-lime"></i>
+                        </div>
+                        <div class="text-xs font-bold ${selectedSlot2Booster ? 'text-ef-lime' : 'text-slate-300'} truncate mt-0.5">
+                            ${selectedSlot2Booster ? selectedSlot2Booster.name : '+ Add Booster'}
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Center: 13-Position Proficiency Grid + Position Boosters -->
+            <div class="lg:col-span-4">
+                ${renderPositionPitchGrid(dynamicOvr)}
+            </div>
+
+            <!-- Right: Interactive Level Training & Progression Point Allocator -->
+            <div class="lg:col-span-3 bg-[#0c1224] border border-slate-800 rounded-xl p-3 flex flex-col justify-between space-y-2.5">
+                <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-ef-lime"><i class="fa-solid fa-sliders mr-1"></i> Progression</span>
+                        <span class="text-[11px] font-bold text-slate-300">Lv.${currentLevel}/${activePlayer.maxLevel}</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 mb-2">
+                        Pts Left: <strong class="${remPts > 0 ? 'text-ef-lime' : 'text-ef-cyan'}">${remPts}</strong> (${usedPts}/${availPts})
+                    </div>
+
+                    <!-- Level Slider -->
+                    <input type="range" min="1" max="${activePlayer.maxLevel}" value="${currentLevel}" oninput="changePlayerLevel(this.value)" class="ef-slider mb-2">
+
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <button onclick="autoAllocateOptimalPoints(); renderPlayerModalContent();" class="flex-1 py-1 rounded-lg bg-ef-lime text-ef-dark font-bold text-[11px] hover:bg-ef-limeHover transition">
+                            Auto
+                        </button>
+                        <button onclick="resetProgressionPoints(true)" class="flex-1 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-semibold text-[11px] transition">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Compact Progression Category Steppers (Có ID trainingListContainer để giữ vị trí cuộn) -->
+                <div id="trainingListContainer" class="space-y-1.5 overflow-y-auto max-h-44 pr-0.5">
+                    ${trainingCategories.map(cat => `
+                        <div class="flex items-center justify-between bg-[#141d36] px-2 py-1 rounded-lg border border-slate-800/80 text-[11px]">
+                            <span class="text-slate-200 truncate pr-1" title="${cat.label}">${cat.label.split(' (')[0]}</span>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button onclick="adjustProgression('${cat.key}', -1)" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center">-</button>
+                                <span class="w-4 text-center font-extrabold text-ef-lime">${progressionPoints[cat.key]}</span>
+                                <button onclick="adjustProgression('${cat.key}', 1)" class="w-5 h-5 rounded bg-slate-800 hover:bg-ef-lime hover:text-ef-dark text-white font-bold flex items-center justify-center">+</button>
                             </div>
                         </div>
                     `).join('')}
                 </div>
+            </div>
+        </div>
 
-                <!-- Player Skills Badges -->
-                <div class="bg-[#131b31] border border-slate-800 rounded-xl p-4">
-                    <h3 class="font-display font-bold uppercase tracking-wider text-sm text-ef-lime mb-2.5">
-                        <i class="fa-solid fa-star mr-1"></i> Player Skills (${activePlayer.skills.length})
-                    </h3>
-                    <div class="flex flex-wrap gap-2">
-                        ${activePlayer.skills.map(skill => `
-                            <span class="px-3 py-1 rounded-lg bg-[#1c2747] border border-slate-700 text-xs font-semibold text-white">
-                                ${skill}
-                            </span>
+        <!-- All 26 eFootball Attributes Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            ${statGroups.map(group => `
+                <div class="bg-[#131b31] border border-slate-800 rounded-xl p-3.5">
+                    <h3 class="font-display font-bold uppercase tracking-wider text-sm text-ef-lime border-b border-slate-800 pb-2 mb-2.5">${group.title}</h3>
+                    <div class="space-y-1.5">
+                        ${group.items.map(([label, val]) => `
+                            <div class="flex items-center justify-between text-xs py-0.5 border-b border-slate-800/40 last:border-none">
+                                <span class="text-slate-300">${label}</span>
+                                <span class="font-mono text-sm ${getStatColorClass(val)}">${val}</span>
+                            </div>
                         `).join('')}
                     </div>
                 </div>
-            `;
-        }
+            `).join('')}
+        </div>
+
+        <!-- Player Skills Badges -->
+        <div class="bg-[#131b31] border border-slate-800 rounded-xl p-4">
+            <h3 class="font-display font-bold uppercase tracking-wider text-sm text-ef-lime mb-2.5">
+                <i class="fa-solid fa-star mr-1"></i> Player Skills (${activePlayer.skills.length})
+            </h3>
+            <div class="flex flex-wrap gap-2">
+                ${activePlayer.skills.map(skill => `
+                    <span class="px-3 py-1 rounded-lg bg-[#1c2747] border border-slate-700 text-xs font-semibold text-white">
+                        ${skill}
+                    </span>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    // 2. Khôi phục lại đúng vị trí scroll cũ cho cả modal chính VÀ khung danh sách chỉ số
+    const updatedModalEl = document.getElementById('playerModalContent');
+    if (updatedModalEl) {
+        updatedModalEl.scrollTop = modalScrollPos;
+    }
+
+    const updatedTrainingListEl = document.getElementById('trainingListContainer');
+    if (updatedTrainingListEl) {
+        updatedTrainingListEl.scrollTop = trainingScrollPos;
+    }
+}
 
         // ==================== MANAGER MODAL ====================
         function openManagerModal(managerId) {
