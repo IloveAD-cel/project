@@ -1,1 +1,163 @@
+body {
+            background-color: #070a14;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(28, 49, 102, 0.45) 0%, rgba(7, 10, 20, 0.95) 65%),
+                linear-gradient(180deg, rgba(11, 16, 33, 0.85) 0%, #070a14 100%);
+            background-attachment: fixed;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
 
+        /* Subtle stadium light rays effect */
+        .stadium-glow {
+            position: fixed;
+            top: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120vw;
+            height: 420px;
+            background: radial-gradient(ellipse at center, rgba(182, 230, 25, 0.08) 0%, rgba(56, 189, 248, 0.05) 40%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Slanted Section Badge (Exact eFHUB Signature Style) */
+        .ef-section-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(90deg, #1b243b 0%, #232f4d 100%);
+            padding: 6px 20px 6px 16px;
+            transform: skewX(-16deg);
+            border-left: 4px solid #b6e619;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+        }
+        .ef-section-badge > span {
+            transform: skewX(16deg);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-style: italic;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        /* eFootball Card Shaders & Foil Borders */
+        .card-bigtime {
+            background: linear-gradient(135deg, #450a0a 0%, #991b1b 45%, #d97706 100%);
+            border: 1.5px solid #fbbf24;
+            box-shadow: 0 8px 20px -4px rgba(220, 38, 38, 0.45);
+        }
+        .card-bigtime-arg {
+            background: linear-gradient(135deg, #0c2d48 0%, #1d4ed8 45%, #d97706 100%);
+            border: 1.5px solid #fde047;
+            box-shadow: 0 8px 22px -4px rgba(59, 130, 246, 0.5);
+        }
+        .card-epic-barca {
+            background: linear-gradient(135deg, #1e1b4b 0%, #7f1d1d 52%, #b45309 100%);
+            border: 1.5px solid #f59e0b;
+            box-shadow: 0 8px 20px -4px rgba(185, 28, 28, 0.45);
+        }
+        .card-epic {
+            background: linear-gradient(135deg, #064e3b 0%, #059669 50%, #0284c7 100%);
+            border: 1.5px solid #34d399;
+            box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4);
+        }
+        .card-legend {
+            background: linear-gradient(135deg, #422006 0%, #a16207 50%, #eab308 100%);
+            border: 1.5px solid #fde047;
+            box-shadow: 0 8px 20px -4px rgba(234, 179, 8, 0.35);
+        }
+        .card-showtime {
+            background: linear-gradient(135deg, #2e1065 0%, #7e22ce 50%, #ec4899 100%);
+            border: 1.5px solid #e879f9;
+            box-shadow: 0 8px 20px -4px rgba(192, 38, 211, 0.4);
+        }
+        .card-potw {
+            background: linear-gradient(135deg, #052e16 0%, #15803d 55%, #84cc16 100%);
+            border: 1.5px solid #a3e635;
+            box-shadow: 0 8px 20px -4px rgba(132, 204, 22, 0.35);
+        }
+        .card-trending {
+            background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 50%, #38bdf8 100%);
+            border: 1.5px solid #7dd3fc;
+            box-shadow: 0 8px 20px -4px rgba(14, 165, 233, 0.35);
+        }
+
+        /* Player Card Container - Fixes Diagonal Glare & Photo Overflow Bug */
+        .ef-player-card {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+        }
+        .ef-player-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -130%;
+            width: 55%;
+            height: 200%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0) 100%);
+            transform: rotate(25deg);
+            transition: left 0.6s ease;
+            pointer-events: none;
+            z-index: 15;
+        }
+        .ef-player-card:hover {
+            transform: translateY(-4px) scale(1.02);
+        }
+        .ef-player-card:hover::after {
+            left: 140%;
+        }
+
+        /* Real Footballer Celebration / Trophy Action Photo Integration */
+        .player-portrait-img {
+            object-fit: cover;
+            object-position: center 15%;
+            filter: contrast(1.1) saturate(1.18) drop-shadow(0 8px 14px rgba(0, 0, 0, 0.92));
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 66%, rgba(0,0,0,0) 98%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 66%, rgba(0,0,0,0) 98%);
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .ef-player-card:hover .player-portrait-img {
+            transform: scale(1.08);
+        }
+
+        .manager-portrait-img {
+            object-fit: cover;
+            object-position: top center;
+            filter: contrast(1.06) saturate(1.08);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1021;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #273459;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b6e619;
+        }
+
+        /* Hide horizontal scrollbar on pill bars while preserving scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Stat Color Tiers (Authentic eFootball / eFHUB colors) */
+        .stat-90 { color: #00f5d4; font-weight: 800; text-shadow: 0 0 8px rgba(0, 245, 212, 0.35); }
+        .stat-80 { color: #84cc16; font-weight: 700; }
+        .stat-70 { color: #facc15; font-weight: 700; }
+        .stat-low { color: #fb923c; font-weight: 600; }
