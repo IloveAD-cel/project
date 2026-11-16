@@ -8,3 +8,4 @@ mỗi lần thì ghi một cái log dưới này:
 
 15/11/2026 - 9:32 - Chỉnh sửa html,css,javascript (QOL)
 
+16/11/26 -6:40 - Siêu rút gọn code
