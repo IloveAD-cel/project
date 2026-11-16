@@ -3,364 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eFHUB 2027 - Players & Managers Database</title>
-    <!-- Tailwind CSS -->
+    <title>eFHUB 27 - Players & Managers</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter & Barlow Condensed (for authentic sports/eFHUB headings) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome for crisp sports & UI icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;1,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Barlow Condensed', 'sans-serif'],
-                    },
-                    colors: {
-                        ef: {
-                            navy: '#0b1021',
-                            dark: '#070a14',
-                            card: '#131b31',
-                            panel: '#1a233c',
-                            lime: '#b6e619',
-                            limeHover: '#c7f52c',
-                            cyan: '#00e5ff',
-                            gold: '#f5b014',
-                            crimson: '#e11d48',
-                            emerald: '#10b981'
-                        }
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Barlow Condensed', 'sans-serif'] },
+                    colors: { ef: { bg: '#121318', surface: '#1b1d24', panel: '#252832', lime: '#d4fc24', limeHover: '#e2ff52' } }
                 }
             }
         }
     </script>
-	<link rel="stylesheet" href="css_source.css">
+    <link rel="stylesheet" href="css_source.css">
 </head>
-<body class="antialiased selection:bg-ef-lime selection:text-ef-dark">
-    <div class="stadium-glow"></div>
+<body class="bg-ef-bg text-white antialiased selection:bg-ef-lime selection:text-black">
 
-    <!-- ==================== SLIDE-OUT DRAWER MENU (ONLY PLAYERS & MANAGERS) ==================== -->
-    <div id="drawerOverlay" onclick="toggleDrawer(false)" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
-    <aside id="sideDrawer" class="fixed top-0 left-0 bottom-0 w-72 max-w-[82vw] bg-gradient-to-b from-[#10172d] via-[#0d1326] to-[#080c18] border-r border-slate-800/80 z-50 transform -translate-x-full transition-transform duration-300 ease-out flex flex-col justify-between shadow-2xl">
-        <div>
-            <!-- Drawer Brand Header -->
-            <div class="p-5 flex items-center justify-between border-b border-slate-800/70">
-                <div class="flex items-center gap-2">
-                    <span class="font-display italic font-extrabold text-3xl tracking-tight text-white">eF<span class="text-ef-lime">HUB</span></span>
-                    <span class="text-[10px] font-bold uppercase tracking-wider bg-ef-lime/15 text-ef-lime border border-ef-lime/30 px-1.5 py-0.5 rounded">2027</span>
-                </div>
-                <button onclick="toggleDrawer(false)" class="w-9 h-9 rounded-xl bg-slate-800/70 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <!-- Navigation Section (Strictly 2 Sections: Players & Managers) -->
-            <div class="p-4">
-                <p class="text-[11px] font-bold tracking-widest text-slate-400 uppercase px-3 mb-3">NAVIGATE</p>
-                <nav class="space-y-2">
-                    <button id="drawerNavPlayers" onclick="switchSection('players'); toggleDrawer(false);" class="w-full flex items-center justify-between px-4 py-3.5 rounded-xl border transition-all duration-200 bg-ef-lime/15 border-ef-lime text-ef-lime font-semibold shadow-lg shadow-ef-lime/5">
-                        <span class="flex items-center gap-3.5">
-                            <i class="fa-regular fa-user text-lg w-5 text-center"></i>
-                            <span class="text-base">Players</span>
-                        </span>
-                        <span class="flex items-center gap-2">
-                            <span class="text-xs font-bold bg-ef-lime text-ef-dark px-2 py-0.5 rounded-full">10</span>
-                            <span class="w-1 h-5 rounded-full bg-ef-lime"></span>
-                        </span>
-                    </button>
-
-                    <button id="drawerNavManagers" onclick="switchSection('managers'); toggleDrawer(false);" class="w-full flex items-center justify-between px-4 py-3.5 rounded-xl border border-transparent hover:bg-slate-800/60 text-slate-300 font-medium transition-all duration-200">
-                        <span class="flex items-center gap-3.5">
-                            <i class="fa-solid fa-briefcase text-lg w-5 text-center"></i>
-                            <span class="text-base">Managers</span>
-                        </span>
-                        <span class="flex items-center gap-2">
-                            <span class="text-xs font-bold bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full">3</span>
-                        </span>
-                    </button>
+    <!-- TOP NAVBAR -->
+    <header class="sticky top-0 z-40 bg-[#15171e]/95 backdrop-blur border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-6">
+                <a href="#" onclick="resetAll()" class="flex items-center gap-1.5 font-display italic font-extrabold text-2xl">
+                    <span class="text-ef-lime">27</span><span>eFHUB</span>
+                </a>
+                <nav class="flex items-center gap-5 text-sm font-medium">
+                    <button onclick="scrollToSection('playersSection')" class="text-white hover:text-ef-lime transition">Players</button>
+                    <button onclick="scrollToSection('managersSection')" class="text-slate-400 hover:text-ef-lime transition">Managers</button>
                 </nav>
             </div>
-        </div>
-
-        <!-- Drawer Footer Info -->
-        <div class="p-4 border-t border-slate-800/70">
-            <div class="bg-[#161f38] border border-slate-700/60 rounded-xl p-3.5">
-                <div class="flex items-center gap-2.5 mb-1">
-                    <span class="w-2 h-2 rounded-full bg-ef-lime animate-pulse"></span>
-                    <span class="text-xs font-bold text-white uppercase tracking-wider">Database v27.4 Live</span>
+            <div class="flex items-center gap-2.5">
+                <div class="relative hidden sm:block w-56">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input id="topSearch" type="text" oninput="handleSearch(this.value)" placeholder="Search players & managers" class="w-full bg-ef-panel border border-white/5 focus:border-ef-lime rounded-lg pl-8 pr-3 py-1.5 text-xs outline-none">
                 </div>
-                <p class="text-[11px] text-slate-400 leading-relaxed">Top 10 eFootball Players & 3 Managers with interactive Progression Point Training.</p>
-            </div>
-        </div>
-    </aside>
-
-    <!-- ==================== TOP STICKY HEADER & TAB BAR ==================== -->
-    <header class="sticky top-0 z-40 bg-[#090e1d]/90 backdrop-blur-md border-b border-slate-800/80 shadow-lg">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6">
-            <!-- Top Row: Pill Control Bar + eFHUB Logo -->
-            <div class="h-16 flex items-center justify-between gap-3">
-                <!-- Left Pill Action Cluster (Exact eFHUB Mobile/Web Pill Style) -->
-                <div class="flex items-center bg-[#151e36] border border-slate-700/70 rounded-full p-1 shadow-inner">
-                    <button onclick="toggleDrawer(true)" aria-label="Open Menu" class="w-10 h-9 rounded-full hover:bg-slate-700/70 text-white flex items-center justify-center transition">
-                        <i class="fa-solid fa-bars text-base"></i>
-                    </button>
-                    <button onclick="focusSearch()" aria-label="Search" class="w-10 h-9 rounded-full hover:bg-slate-700/70 text-slate-200 flex items-center justify-center transition">
-                        <i class="fa-solid fa-magnifying-glass text-sm"></i>
-                    </button>
-                    <button onclick="showToast('Database synced: 10 Best Players & 3 Managers ready!')" aria-label="Notifications" class="relative w-10 h-9 rounded-full hover:bg-slate-700/70 text-slate-200 flex items-center justify-center transition">
-                        <i class="fa-solid fa-bell text-sm"></i>
-                        <span class="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-ef-lime"></span>
-                    </button>
-                </div>
-
-                <!-- Center Search Bar (Desktop & Tablet) -->
-                <div class="hidden md:flex flex-1 max-w-md mx-4">
-                    <div class="relative w-full">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                        <input id="desktopSearchInput" type="text" oninput="handleSearch(this.value)" placeholder="Search players, clubs, skills or managers..." class="w-full bg-[#131b31] border border-slate-700/80 focus:border-ef-lime rounded-full pl-10 pr-4 py-2 text-sm text-white placeholder-slate-400 outline-none transition">
-                    </div>
-                </div>
-
-                <!-- Right Brand Logo (Authentic eFHUB Italic Wordmark) -->
-                <div onclick="switchSection('players')" class="cursor-pointer flex items-center gap-1.5 select-none">
-                    <span class="font-display italic font-extrabold text-3xl sm:text-4xl tracking-tight text-white drop-shadow">eF<span class="text-ef-lime">HUB</span></span>
-                </div>
-            </div>
-
-            <!-- Second Row: Main Navigation Tabs (ONLY PLAYERS & MANAGERS) -->
-            <div class="flex items-center gap-8 border-t border-slate-800/50 pt-1">
-                <button id="tabBtnPlayers" onclick="switchSection('players')" class="relative py-3 font-display font-bold text-lg tracking-wider uppercase text-ef-lime transition">
-                    PLAYERS <span class="text-xs font-sans font-bold ml-1 opacity-80">(10)</span>
-                    <span id="tabIndicatorPlayers" class="absolute bottom-0 left-0 right-0 h-[3px] bg-ef-lime rounded-t-full shadow-[0_0_10px_#b6e619]"></span>
-                </button>
-                <button id="tabBtnManagers" onclick="switchSection('managers')" class="relative py-3 font-display font-bold text-lg tracking-wider uppercase text-slate-400 hover:text-white transition">
-                    MANAGERS <span class="text-xs font-sans font-bold ml-1 opacity-80">(3)</span>
-                    <span id="tabIndicatorManagers" class="hidden absolute bottom-0 left-0 right-0 h-[3px] bg-ef-lime rounded-t-full shadow-[0_0_10px_#b6e619]"></span>
-                </button>
+                <button onclick="resetAll()" class="bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs px-3.5 py-1.5 rounded-full transition">Reset</button>
             </div>
         </div>
     </header>
 
-    <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
-    <main class="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-20">
-
-        <!-- Mobile Search & Smart Filter Banner (Matches eFHUB Top Banner) -->
-        <div class="mb-5 bg-gradient-to-r from-[#17223f] via-[#1b2849] to-[#131c33] border border-slate-700/70 rounded-2xl p-3 sm:p-4 shadow-xl">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-ef-lime to-emerald-500 flex items-center justify-center text-ef-dark font-display font-black italic text-xl shrink-0 shadow-md">
-                        eF
-                    </div>
-                    <div>
-                        <p class="text-xs sm:text-sm text-slate-200 font-medium">Find exact player builds & manager booster synergies.</p>
-                        <button onclick="resetAllFilters()" class="text-xs font-bold text-ef-lime hover:underline mt-0.5 inline-flex items-center gap-1">
-                            Reset Smart Filters <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-                </div>
-                <!-- Mobile Search Box -->
-                <div class="relative w-full sm:w-72 md:hidden">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input id="mobileSearchInput" type="text" oninput="handleSearch(this.value)" placeholder="Search name, club, position..." class="w-full bg-[#0d1324] border border-slate-700 focus:border-ef-lime rounded-xl pl-9 pr-3 py-2 text-sm text-white placeholder-slate-400 outline-none">
-                </div>
+    <!-- HERO BANNER -->
+    <section class="relative overflow-hidden bg-[#0e1015] border-b border-white/5 py-7 px-4">
+        <div class="pointer-events-none absolute -left-12 -top-6 w-56 h-32 bg-ef-lime/80 -skew-x-12 rotate-6 rounded-2xl"></div>
+        <div class="pointer-events-none absolute -right-12 -bottom-8 w-80 h-32 bg-ef-lime -skew-x-12 -rotate-3 rounded-2xl"></div>
+        <div class="relative z-10 max-w-2xl mx-auto flex items-center gap-4">
+            <span class="font-display italic font-extrabold text-3xl shrink-0">eFHUB</span>
+            <div class="relative w-full">
+                <input id="heroSearch" type="text" oninput="handleSearch(this.value)" placeholder="Search players & managers..." class="w-full bg-[#1e212b]/95 border border-white/10 focus:border-ef-lime rounded-xl px-4 py-2.5 text-sm outline-none shadow-lg">
+                <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
             </div>
         </div>
+    </section>
 
-        <!-- ==================== SECTION 1: PLAYERS (60 PLAYERS) ==================== -->
-        <section id="playersSection" class="space-y-7">
-            <!-- Position & Card Type Filter Bar -->
-            <div class="space-y-2.5">
-                <!-- Position Filter Pills -->
-                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1 shrink-0">POS:</span>
-                    <div id="positionFilterBar" class="flex items-center gap-1.5">
-                        <!-- Injected via JS -->
-                    </div>
-                </div>
-                <!-- Card Type Filter Pills -->
-                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1 shrink-0">CARD:</span>
-                    <div id="cardTypeFilterBar" class="flex items-center gap-1.5">
-                        <!-- Injected via JS -->
-                    </div>
-                </div>
-            </div>
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-10">
 
-            <!-- Filtered Results Mode (Visible when searching/filtering) -->
-            <div id="filteredPlayersContainer" class="hidden space-y-4">
-                <div class="flex items-center justify-between">
-                    <div class="ef-section-badge">
-                        <span id="filteredPlayersTitle">FILTERED PLAYERS (10)</span>
-                    </div>
-                    <button onclick="resetAllFilters()" class="text-xs font-semibold text-ef-lime bg-ef-lime/10 border border-ef-lime/30 px-3 py-1.5 rounded-full hover:bg-ef-lime/20 transition">
-                        Clear Filters
-                    </button>
-                </div>
-                <div id="filteredPlayersGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4"></div>
-            </div>
-
-            <!-- Default Showcase Mode (Matches eFHUB Categorized Rows + Full 10 Best Players Database) -->
-            <div id="categorizedPlayersContainer" class="space-y-8">
-                <!-- Row 1: TRENDING -->
-                <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="ef-section-badge">
-                            <span>TRENDING</span>
-                        </div>
-                        <span class="text-xs font-semibold text-slate-400">Featured Icons & Wonderkids</span>
-                    </div>
-                    <div id="gridTrending" class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"></div>
-                </div>
-
-                <!-- Row 2: ARSENAL BIGTIME -->
-                <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="ef-section-badge">
-                            <span>ARSENAL BIGTIME</span>
-                        </div>
-                        <span class="text-xs font-semibold text-amber-400"><i class="fa-solid fa-crown mr-1"></i>Invincibles Double Booster</span>
-                    </div>
-                    <div id="gridArsenal" class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"></div>
-                </div>
-
-                <!-- Row 3: NATIONAL LEGENDS -->
-                <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="ef-section-badge">
-                            <span>NATIONAL LEGENDS</span>
-                        </div>
-                        <span class="text-xs font-semibold text-emerald-400">All-Time Position Masters</span>
-                    </div>
-                    <div id="gridLegends" class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"></div>
-                </div>
-
-                <!-- Row 4: ALL DATABASE PLAYERS (10 TOTAL) -->
-                <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="ef-section-badge">
-                            <span>ALL TOP 10 PLAYERS</span>
-                        </div>
-                        <span class="text-xs font-semibold text-slate-400">Tap any card for Stats, Boosters & Training</span>
-                    </div>
-                    <div id="gridAllPlayers" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== SECTION 2: MANAGERS (3 MANAGERS) ==================== -->
-        <section id="managersSection" class="hidden space-y-6">
+        <!-- SECTION: LATEST PLAYERS -->
+        <section id="playersSection" class="space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <div class="ef-section-badge">
-                    <span>LATEST MANAGERS (3)</span>
-                </div>
-                <div class="flex items-center gap-2 text-xs text-slate-300 bg-[#131b31] border border-slate-700/70 px-3 py-1.5 rounded-full">
-                    <i class="fa-solid fa-bolt text-ef-lime"></i>
-                    <span>Tap a Manager to inspect Playstyle Proficiency & Boosters</span>
-                </div>
+                <h2 class="border-l-[3px] border-ef-lime pl-2.5 font-bold text-base">Latest Players</h2>
+                <div class="flex flex-wrap items-center gap-1.5" id="filterBars"></div>
             </div>
 
-            <!-- 3 Managers Grid -->
-            <div id="managersGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Injected via JS -->
+            <!-- Grid Players -->
+            <div id="playersGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5"></div>
+
+            <!-- Nút vàng giữa trang giống ảnh mẫu -->
+            <div class="flex justify-center pt-2">
+                <button id="toggleAllBtn" onclick="toggleShowAllPlayers()" class="bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs px-6 py-2.5 rounded-full shadow-md transition">
+                    See all new players <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
             </div>
         </section>
 
+        <!-- SECTION: LATEST MANAGERS -->
+        <section id="managersSection" class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="border-l-[3px] border-ef-lime pl-2.5 font-bold text-base">Latest Managers</h2>
+                <span class="text-xs text-slate-400">Tap manager to inspect playstyle</span>
+            </div>
+            <div id="managersGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+        </section>
     </main>
 
-    <!-- ==================== PLAYER DETAIL & LEVEL TRAINING MODAL ==================== -->
-    <div id="playerModal" class="fixed inset-0 z-50 hidden items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md">
-        <div class="relative w-full max-w-4xl max-h-[92vh] bg-[#0e1529] border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-[#141d36] border-b border-slate-800">
+    <!-- MODAL CHI TIẾT (Dùng chung cho cả Player, Manager, Booster & Position) -->
+    <div id="mainModal" onclick="if(event.target===this) closeModal()" class="fixed inset-0 z-50 hidden items-center justify-center p-3 bg-black/80 backdrop-blur-sm">
+        <div class="w-full max-w-4xl max-h-[90vh] bg-ef-surface border border-white/10 rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+            <div class="flex items-center justify-between px-5 py-3 bg-ef-panel border-b border-white/10">
                 <div class="flex items-center gap-2.5">
-                    <span id="modalCardTypeBadge" class="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded bg-ef-lime text-ef-dark">BIG TIME</span>
-                    <h2 id="modalPlayerName" class="font-display font-extrabold italic text-xl sm:text-2xl text-white tracking-wide uppercase">Lionel Messi</h2>
+                    <span id="modalBadge" class="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded bg-ef-lime text-black">BIG TIME</span>
+                    <h3 id="modalTitle" class="font-display font-extrabold italic text-xl uppercase">Title</h3>
                 </div>
-                <button onclick="closePlayerModal()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-rose-600 text-white flex items-center justify-center transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-rose-600 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
-            <!-- Modal Body (Scrollable) -->
-            <div id="playerModalContent" class="overflow-y-auto p-4 sm:p-6 space-y-6">
-                <!-- Dynamic Content Injected Here -->
-            </div>
+            <div id="modalBody" class="overflow-y-auto p-5 space-y-5"></div>
         </div>
     </div>
 
-    <!-- ==================== MANAGER DETAIL MODAL ==================== -->
-    <div id="managerModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md">
-        <div class="relative w-full max-w-2xl max-h-[90vh] bg-[#0e1529] border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-            <div class="flex items-center justify-between px-5 py-3.5 bg-[#141d36] border-b border-slate-800">
-                <div class="flex items-center gap-2">
-                    <span class="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded bg-ef-lime text-ef-dark">MANAGER</span>
-                    <h2 id="modalManagerName" class="font-display font-extrabold italic text-xl sm:text-2xl text-white uppercase">Pep Guardiola</h2>
-                </div>
-                <button onclick="closeManagerModal()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-rose-600 text-white flex items-center justify-center transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+    <!-- SUB-MODAL (Chọn Booster / Position Booster) -->
+    <div id="subModal" onclick="if(event.target===this) closeSubModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-3 bg-black/85">
+        <div class="w-full max-w-md max-h-[85vh] bg-ef-surface border border-white/10 rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                <h4 id="subModalTitle" class="font-bold text-sm">Select Booster</h4>
+                <button onclick="closeSubModal()" class="w-7 h-7 rounded-lg hover:bg-white/10 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div id="managerModalContent" class="overflow-y-auto p-5 space-y-5">
-                <!-- Dynamic Content Injected Here -->
-            </div>
+            <div id="subModalBody" class="overflow-y-auto p-4 space-y-2.5"></div>
         </div>
     </div>
 
-    <!-- ==================== SELECT BOOSTER MODAL (MATCHING EFHUB SCREENSHOT 1) ==================== -->
-    <div id="boosterModal" class="fixed inset-0 z-[60] hidden items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md">
-        <div class="relative w-full max-w-lg max-h-[86vh] bg-[#10141f] border border-slate-700/90 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-            <div class="px-5 pt-4 pb-3 border-b border-slate-800/90">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <h3 class="font-bold text-xl text-white tracking-tight">Select Booster</h3>
-                        <p id="boosterSlotSubtitle" class="text-xs font-medium text-slate-400 mt-0.5">Slot 2</p>
-                    </div>
-                    <button onclick="closeBoosterModal()" class="w-8 h-8 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
-                </div>
-                <div class="relative mt-3.5">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input id="boosterSearchInput" type="text" oninput="renderBoosterList(this.value)" placeholder="Search boosters..." class="w-full bg-[#191f2e] border border-slate-700/70 focus:border-ef-lime rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-white placeholder-slate-400 outline-none transition">
-                </div>
-            </div>
-            <div id="boosterListContainer" class="overflow-y-auto p-4 space-y-2.5">
-                <!-- Booster Options Injected Here -->
-            </div>
-        </div>
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 translate-y-20 opacity-0 transition-all bg-ef-panel border border-ef-lime text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-ef-lime"></i><span id="toastMsg"></span>
     </div>
 
-    <!-- ==================== POSITION BOOSTERS MODAL (MATCHING EFHUB SCREENSHOT 2 & 3) ==================== -->
-    <div id="positionBoosterModal" class="fixed inset-0 z-[60] hidden items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md">
-        <div class="relative w-full max-w-md bg-[#10141f] border border-slate-700/90 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
-                <div>
-                    <h3 class="font-bold text-lg text-white">Position Boosters</h3>
-                    <p class="text-xs text-slate-400">Assign up to 2 tokens to upgrade Secondary positions to Full proficiency</p>
-                </div>
-                <button onclick="closePositionBoosterModal()" class="w-8 h-8 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-            <div id="positionBoosterContent" class="p-5 space-y-4">
-                <!-- Dynamic Position Token Slots -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div id="toastBox" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-[#18223f] border border-ef-lime text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 text-sm font-medium">
-        <i class="fa-solid fa-circle-check text-ef-lime"></i>
-        <span id="toastMessage">Action completed</span>
-    </div>
-
-    <!-- ==================== JAVASCRIPT DATABASE & APPLICATION LOGIC ==================== -->
     <script src="js_source.js" defer></script>
 </body>
 </html>
