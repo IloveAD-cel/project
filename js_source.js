@@ -36,16 +36,16 @@ function buildStats(type, boost = 0) {
 
 // 1. LINK ẢNH LOCAL: Đặt file ảnh PNG cùng thư mục với file HTML
 const PLAYERS = [
-    { id: 1, name: "Lionel Messi", eraDate: "01 Dec '09", image: "messi_2009.png", pos: "SS", baseOvr: 90, maxOvr: 107, card: "BigTime", theme: "card-bigtime", booster: "fantasista", fullPos: ["SS","RWF","AMF"], secPos: ["CF","RMF"], club: "FC Barcelona '09", nation: "Argentina", style: "Roaming Flank", maxLvl: 35, age: 22, height: 170, foot: "Left", arch: "wizard", boost: 3, skills: ["Double Touch","Marseille Turn","Long-Range Curler","First-time Shot","One-touch Pass","Through Passing"] },
-    { id: 2, name: "Lamine Yamal", eraDate: "Live '26", image: "yamal_2026.png", pos: "RWF", baseOvr: 87, maxOvr: 105, card: "Trending", theme: "card-trending", booster: "ball_carrying", fullPos: ["RWF","RMF"], secPos: ["AMF","SS","LWF"], club: "FC Barcelona", nation: "Spain", style: "Prolific Winger", maxLvl: 38, age: 19, height: 180, foot: "Left", arch: "wizard", boost: 3, skills: ["Double Touch","Flip Flap","Long-Range Curler","Outside Curler","Through Passing","Pinpoint Crossing"] },
-    { id: 3, name: "Cristiano Ronaldo", eraDate: "21 May '08", image: "cr7_2008.png", pos: "LWF", baseOvr: 89, maxOvr: 106, card: "BigTime", theme: "card-bigtime", booster: "shooting", fullPos: ["LWF","CF","RWF"], secPos: ["SS","LMF","RMF"], club: "Man Utd '08", nation: "Portugal", style: "Prolific Winger", maxLvl: 35, age: 23, height: 187, foot: "Right", arch: "striker", boost: 3, skills: ["Knuckle Shot","Scissors Feint","Long-Range Shooting","Heading","First-time Shot","Aerial Superiority"] },
-    { id: 4, name: "Jude Bellingham", eraDate: "Live '26", image: "bellingham_2026.png", pos: "AMF", baseOvr: 87, maxOvr: 104, card: "ShowTime", theme: "card-showtime", booster: "balancer", fullPos: ["AMF","CMF"], secPos: ["SS","LMF","DMF"], club: "Madrid Chamartin", nation: "England", style: "Hole Player", maxLvl: 33, age: 23, height: 186, foot: "Right", arch: "holePlayer", boost: 2, skills: ["Double Touch","Marseille Turn","First-time Shot","One-touch Pass","Through Passing","Interception"] },
-    { id: 5, name: "Thierry Henry", eraDate: "16 Nov '02", image: "henry_2002.png", pos: "CF", baseOvr: 89, maxOvr: 106, card: "BigTime", theme: "card-bigtime", booster: "strikers_instinct", fullPos: ["CF","LWF"], secPos: ["SS","LMF"], club: "Arsenal FC", nation: "France", style: "Goal Poacher", maxLvl: 35, age: 25, height: 188, foot: "Right", arch: "striker", boost: 3, skills: ["Double Touch","Long-Range Curler","First-time Shot","Outside Curler","Chip Shot Control","One-touch Pass"] },
-    { id: 6, name: "Patrick Vieira", eraDate: "15 May '04", image: "vieira_2004.png", pos: "DMF", baseOvr: 88, maxOvr: 106, card: "BigTime", theme: "card-bigtime", booster: "duelling", fullPos: ["DMF","CMF"], secPos: ["CB"], club: "Arsenal FC", nation: "France", style: "Destroyer", maxLvl: 34, age: 27, height: 192, foot: "Right", arch: "destroyerDmf", boost: 3, skills: ["Man Marking","Interception","Blocker","Aerial Superiority","Sliding Tackle","Fighting Spirit"] },
-    { id: 7, name: "Andrea Pirlo", eraDate: "09 Jul '06", image: "pirlo_2006.png", pos: "CMF", baseOvr: 87, maxOvr: 104, card: "Epic", theme: "card-epic", booster: "passing", fullPos: ["CMF","DMF"], secPos: ["AMF"], club: "Milano RN", nation: "Italy", style: "Orchestrator", maxLvl: 33, age: 27, height: 177, foot: "Right", arch: "orchestrator", boost: 2, skills: ["One-touch Pass","Through Passing","Weighted Pass","Low Lofted Pass","Pinpoint Crossing","Long-Range Curler"] },
-    { id: 8, name: "Paolo Maldini", eraDate: "28 May '03", image: "maldini_2003.png", pos: "CB", baseOvr: 88, maxOvr: 105, card: "BigTime", theme: "card-bigtime", booster: "shutdown", fullPos: ["CB","LB"], secPos: ["RB"], club: "Milano RN", nation: "Italy", style: "Build Up", maxLvl: 34, age: 34, height: 186, foot: "Right", arch: "centerBack", boost: 3, skills: ["Man Marking","Interception","Blocker","Aerial Superiority","Sliding Tackle","Acrobatic Clearance"] },
-    { id: 9, name: "Roberto Carlos", eraDate: "30 Jun '02", image: "carlos_2002.png", pos: "LB", baseOvr: 87, maxOvr: 104, card: "Legend", theme: "card-legend", booster: "freekick", fullPos: ["LB","LMF"], secPos: ["LWF"], club: "Brazil Legends", nation: "Brazil", style: "Offensive Full-back", maxLvl: 33, age: 29, height: 168, foot: "Left", arch: "fullback", boost: 2, skills: ["Knuckle Shot","Dipping Shot","Pinpoint Crossing","Long-Range Shooting","Weighted Pass","Outside Curler"] },
-    { id: 10, name: "Peter Schmeichel", eraDate: "26 May '99", image: "schmeichel_1999.png", pos: "GK", baseOvr: 88, maxOvr: 105, card: "Epic", theme: "card-epic", booster: "goalkeeping", fullPos: ["GK"], secPos: [], club: "Man Utd", nation: "Denmark", style: "Defensive GK", maxLvl: 32, age: 35, height: 191, foot: "Right", arch: "goalkeeper", boost: 3, skills: ["GK Long Throw","GK Low Punt","GK High Punt","GK Penalty Saver","Captaincy"] }
+    { id: 1, name: "Lionel Messi", eraDate: "01 Dec '09", image: "messi_2009.png", pos: "SS", baseOvr: 90, maxOvr: 107, card: "BigTime", theme: "card-bigtime", booster: "fantasista", fullPos: ["SS","RWF","AMF"], secPos: ["CF","RMF"], club: "FC Barcelona '09", league: "Spanish League", nation: "Argentina", flag: "🇦🇷", style: "Roaming Flank", maxLvl: 35, age: 22, height: 170, weight: 72, foot: "Left", condition: "B", arch: "wizard", boost: 3, skills: ["Double Touch","Marseille Turn","Long-Range Curler","First-time Shot","One-touch Pass","Through Passing"] },
+    { id: 2, name: "Lamine Yamal", eraDate: "Live '26", image: "yamal_2026.png", pos: "RWF", baseOvr: 87, maxOvr: 105, card: "Trending", theme: "card-trending", booster: "ball_carrying", fullPos: ["RWF","RMF"], secPos: ["AMF","SS","LWF"], club: "FC Barcelona", league: "Spanish League", nation: "Spain", flag: "🇪🇸", style: "Prolific Winger", maxLvl: 38, age: 19, height: 180, weight: 72, foot: "Left", condition: "A", arch: "wizard", boost: 3, skills: ["Double Touch","Flip Flap","Long-Range Curler","Outside Curler","Through Passing","Pinpoint Crossing"] },
+    { id: 3, name: "Cristiano Ronaldo", eraDate: "21 May '08", image: "cr7_2008.png", pos: "LWF", baseOvr: 89, maxOvr: 106, card: "BigTime", theme: "card-bigtime", booster: "shooting", fullPos: ["LWF","CF","RWF"], secPos: ["SS","LMF","RMF"], club: "Man Utd '08", league: "English League", nation: "Portugal", flag: "🇵🇹", style: "Prolific Winger", maxLvl: 35, age: 23, height: 187, weight: 83, foot: "Right", condition: "B", arch: "striker", boost: 3, skills: ["Knuckle Shot","Scissors Feint","Long-Range Shooting","Heading","First-time Shot","Aerial Superiority"] },
+    { id: 4, name: "Jude Bellingham", eraDate: "Live '26", image: "bellingham_2026.png", pos: "AMF", baseOvr: 87, maxOvr: 104, card: "ShowTime", theme: "card-showtime", booster: "balancer", fullPos: ["AMF","CMF"], secPos: ["SS","LMF","DMF"], club: "Madrid Chamartin", league: "Spanish League", nation: "England", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", style: "Hole Player", maxLvl: 33, age: 23, height: 186, weight: 75, foot: "Right", condition: "A", arch: "holePlayer", boost: 2, skills: ["Double Touch","Marseille Turn","First-time Shot","One-touch Pass","Through Passing","Interception"] },
+    { id: 5, name: "Thierry Henry", eraDate: "16 Nov '02", image: "henry_2002.png", pos: "CF", baseOvr: 89, maxOvr: 106, card: "BigTime", theme: "card-bigtime", booster: "strikers_instinct", fullPos: ["CF","LWF"], secPos: ["SS","LMF"], club: "Arsenal FC", league: "English League", nation: "France", flag: "🇫🇷", style: "Goal Poacher", maxLvl: 35, age: 25, height: 188, weight: 83, foot: "Right", condition: "B", arch: "striker", boost: 3, skills: ["Double Touch","Long-Range Curler","First-time Shot","Outside Curler","Chip Shot Control","One-touch Pass"] },
+    { id: 6, name: "Patrick Vieira", eraDate: "15 May '04", image: "vieira_2004.png", pos: "DMF", baseOvr: 88, maxOvr: 106, card: "BigTime", theme: "card-bigtime", booster: "duelling", fullPos: ["DMF","CMF"], secPos: ["CB"], club: "Arsenal FC", league: "English League", nation: "France", flag: "🇫🇷", style: "Destroyer", maxLvl: 34, age: 27, height: 192, weight: 82, foot: "Right", condition: "B", arch: "destroyerDmf", boost: 3, skills: ["Man Marking","Interception","Blocker","Aerial Superiority","Sliding Tackle","Fighting Spirit"] },
+    { id: 7, name: "Andrea Pirlo", eraDate: "09 Jul '06", image: "pirlo_2006.png", pos: "CMF", baseOvr: 87, maxOvr: 104, card: "Epic", theme: "card-epic", booster: "passing", fullPos: ["CMF","DMF"], secPos: ["AMF"], club: "Milano RN", league: "Italian League", nation: "Italy", flag: "🇮🇹", style: "Orchestrator", maxLvl: 33, age: 27, height: 177, weight: 68, foot: "Right", condition: "B", arch: "orchestrator", boost: 2, skills: ["One-touch Pass","Through Passing","Weighted Pass","Low Lofted Pass","Pinpoint Crossing","Long-Range Curler"] },
+    { id: 8, name: "Paolo Maldini", eraDate: "28 May '03", image: "maldini_2003.png", pos: "CB", baseOvr: 88, maxOvr: 105, card: "BigTime", theme: "card-bigtime", booster: "shutdown", fullPos: ["CB","LB"], secPos: ["RB"], club: "Milano RN", league: "Italian League", nation: "Italy", flag: "🇮🇹", style: "Build Up", maxLvl: 34, age: 34, height: 186, weight: 85, foot: "Right", condition: "B", arch: "centerBack", boost: 3, skills: ["Man Marking","Interception","Blocker","Aerial Superiority","Sliding Tackle","Acrobatic Clearance"] },
+    { id: 9, name: "Roberto Carlos", eraDate: "30 Jun '02", image: "carlos_2002.png", pos: "LB", baseOvr: 87, maxOvr: 104, card: "Legend", theme: "card-legend", booster: "freekick", fullPos: ["LB","LMF"], secPos: ["LWF"], club: "Brazil Legends", league: "National", nation: "Brazil", flag: "🇧🇷", style: "Offensive Full-back", maxLvl: 33, age: 29, height: 168, weight: 70, foot: "Left", condition: "B", arch: "fullback", boost: 2, skills: ["Knuckle Shot","Dipping Shot","Pinpoint Crossing","Long-Range Shooting","Weighted Pass","Outside Curler"] },
+    { id: 10, name: "Peter Schmeichel", eraDate: "26 May '99", image: "schmeichel_1999.png", pos: "GK", baseOvr: 88, maxOvr: 105, card: "Epic", theme: "card-epic", booster: "goalkeeping", fullPos: ["GK"], secPos: [], club: "Man Utd", league: "English League", nation: "Denmark", flag: "🇩🇰", style: "Defensive GK", maxLvl: 32, age: 35, height: 191, weight: 92, foot: "Right", condition: "B", arch: "goalkeeper", boost: 3, skills: ["GK Long Throw","GK Low Punt","GK High Punt","GK Penalty Saver","Captaincy"] }
 ].map(p => ({ ...p, baseStats: buildStats(p.arch, p.boost) }));
 
 const MANAGERS = [
@@ -159,15 +159,7 @@ function calcStats() {
 
 // ==================== MODALS ====================
 function openPlayer(id) {
-    state.player = PLAYERS.find(p => p.id === id);
-    state.level = state.player.maxLvl;
-    state.b1 = BOOSTERS.find(b => b.id === state.player.booster) || null;
-    state.b2 = null; state.posTokens = [];
-    autoAllocate();
-    document.getElementById('modalBadge').textContent = `${state.player.card} • ${state.player.eraDate}`;
-    document.getElementById('modalTitle').textContent = `${state.player.name} (${state.player.pos})`;
-    renderPlayerModal();
-    toggleEl('mainModal', true);
+    window.location.href = `player.html?id=${id}`;
 }
 
 function getActiveBoosterStatBonuses() {
@@ -182,8 +174,9 @@ function getActiveBoosterStatBonuses() {
     return bonuses;
 }
 
-function renderPlayerModal() {
+function renderPlayerModal(isSliding = false) {
     const p = state.player, { s, ovr } = calcStats(), avail = getAvailPts(), used = getUsedPts();
+    
     const posCell = (code) => {
         const isFull = p.fullPos.includes(code) || state.posTokens.includes(code), isSec = p.secPos.includes(code);
         const r = code === p.pos ? ovr : isFull ? ovr - 1 : isSec ? ovr - 4 : (p.pos === 'GK' || code === 'GK' ? 48 : ovr - 14);
@@ -200,22 +193,102 @@ function renderPlayerModal() {
     ];
     document.getElementById('modalBody').innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-ef-panel/60 p-4 rounded-xl border border-white/5">
-            <div class="md:col-span-5 space-y-3">
-                <div class="flex gap-3 items-center">
-                    <div class="${p.theme} w-20 h-28 rounded-lg p-1.5 flex flex-col justify-between shrink-0 relative overflow-hidden">
-                        <img src="${p.image}" onerror="this.classList.add('hidden')" class="portrait-mask absolute inset-0 w-full h-full">
-                        <div class="relative z-10 bg-black/60 px-1 rounded self-start font-display font-extrabold text-lg leading-none">${ovr}<div class="text-[10px] text-amber-300">${p.pos}</div></div>
+            <div class="md:col-span-5 flex flex-col justify-between gap-3">
+                <div class="grid grid-cols-12 gap-2 items-stretch">
+                    
+                    <!-- Left Column: Nation -> Club -> League -->
+                    <div class="col-span-3 flex flex-col justify-between gap-1.5">
+                        <div title="${p.nation}" class="flex-1 bg-ef-bg border border-white/10 rounded-xl p-1.5 flex flex-col items-center justify-center text-center">
+                            <span class="text-xl leading-none">${p.flag || '🏳️'}</span>
+                            <span class="text-[9px] font-bold text-slate-300 truncate w-full mt-1">${p.nation}</span>
+                        </div>
+                        <div title="${p.club}" class="flex-1 bg-ef-bg border border-white/10 rounded-xl p-1.5 flex flex-col items-center justify-center text-center">
+                            <i class="fa-solid fa-shield-halved text-base text-ef-lime"></i>
+                            <span class="text-[9px] font-bold text-slate-300 truncate w-full mt-1">${p.club}</span>
+                        </div>
+                        <div title="${p.league}" class="flex-1 bg-ef-bg border border-white/10 rounded-xl p-1.5 flex flex-col items-center justify-center text-center">
+                            <i class="fa-solid fa-trophy text-sm text-amber-400"></i>
+                            <span class="text-[9px] font-bold text-slate-300 truncate w-full mt-1">${p.league || 'League'}</span>
+                        </div>
                     </div>
-                    <div class="text-xs space-y-1 text-slate-300">
-                        <div class="text-ef-lime font-bold">${p.style} (${p.eraDate})</div>
-                        <div>Club: <b class="text-white">${p.club}</b></div>
-                        <div>Nation: ${p.nation} • ${p.age}y • ${p.height}cm</div>
-                        <div>Foot: ${p.foot}</div>
+
+                    <!-- Center Column: Player Card Picture -->
+                    <div class="col-span-6">
+                        <div class="${p.theme} w-full aspect-[3/4.3] rounded-xl p-2 flex flex-col justify-between relative overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.6)]">
+                            <img src="${p.image}" onerror="this.classList.add('hidden')" class="portrait-mask absolute inset-0 w-full h-full">
+                            
+                            <!-- Top OVR, Pos & Tier -->
+                            <div class="relative z-10 flex justify-between items-start">
+                                <div class="bg-black/60 backdrop-blur-sm px-1.5 py-1 rounded leading-none">
+                                    <div id="ovrText" class="font-display font-extrabold text-2xl text-white">${ovr}</div>
+                                    <div class="font-display font-bold text-xs text-amber-300">${p.pos}</div>
+                                </div>
+                                <span class="bg-black/75 text-ef-lime font-black text-[10px] px-1.5 py-0.5 rounded border border-white/10">S</span>
+                            </div>
+
+                            <!-- Bottom Nameplate, Booster Hex Icons & Stars -->
+                            <div class="relative z-10 bg-gradient-to-t from-black/95 via-black/80 to-transparent -mx-2 -mb-2 p-2 pt-5 text-center">
+                                <div class="font-bold text-xs text-white truncate drop-shadow">${p.name}</div>
+                                <div class="flex items-center justify-center gap-1.5 mt-1">
+                                    <span class="w-4 h-4 rounded-full ${state.b1 ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300' : 'bg-white/5 border-white/15 text-slate-500'} border text-[8px] flex items-center justify-center">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </span>
+                                    <span class="w-4 h-4 rounded-full ${state.b2 ? 'bg-ef-lime/20 border-ef-lime text-ef-lime' : 'bg-white/5 border-white/15 text-slate-500'} border text-[8px] flex items-center justify-center">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </span>
+                                </div>
+                                <div class="flex justify-center gap-0.5 mt-1 text-[8px] text-amber-400">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Height -> Weight -> Age -> Foot -> Condition -->
+                    <div class="col-span-3 flex flex-col justify-between gap-1">
+                        <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
+                            <div class="text-[9px] text-slate-400 leading-tight">Height</div>
+                            <div class="text-[11px] font-bold text-white leading-tight">${p.height}cm</div>
+                        </div>
+                        <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
+                            <div class="text-[9px] text-slate-400 leading-tight">Weight</div>
+                            <div class="text-[11px] font-bold text-white leading-tight">${p.weight || 75}kg</div>
+                        </div>
+                        <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
+                            <div class="text-[9px] text-slate-400 leading-tight">Age</div>
+                            <div class="text-[11px] font-bold text-white leading-tight">${p.age}</div>
+                        </div>
+                        <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
+                            <div class="text-[9px] text-slate-400 leading-tight">Foot</div>
+                            <div class="text-[11px] font-bold text-white leading-tight">${p.foot}</div>
+                        </div>
+                        <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
+                            <div class="text-[9px] text-slate-400 leading-tight">Condition</div>
+                            <div class="text-[11px] font-extrabold ${p.condition === 'A' ? 'text-emerald-400' : 'text-ef-lime'} leading-tight">${p.condition || 'B'}</div>
+                        </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="openBoosterPicker(1)" class="bg-ef-bg border border-white/10 hover:border-ef-lime p-2 rounded-lg text-left"><div class="text-[10px] text-slate-400">Booster 1</div><div class="text-xs font-bold truncate">${state.b1 ? state.b1.name : '+ Select'}</div></button>
-                    <button onclick="openBoosterPicker(2)" class="bg-ef-bg border border-dashed border-white/20 hover:border-ef-lime p-2 rounded-lg text-left"><div class="text-[10px] text-slate-400">Booster 2</div><div class="text-xs font-bold text-ef-lime truncate">${state.b2 ? state.b2.name : '+ Add'}</div></button>
+
+                <!-- Bottom Row: Booster 1 Dropdown | Dual Hex Icons | Booster 2 Dropdown -->
+                <div class="flex items-center gap-1.5 pt-1">
+                    <button onclick="openBoosterPicker(1)" class="flex-1 min-w-0 bg-ef-bg hover:bg-white/5 border border-white/10 hover:border-cyan-400 px-2.5 py-2 rounded-xl flex items-center justify-between gap-1 transition">
+                        <span class="text-[11px] font-bold text-cyan-400 truncate">${state.b1 ? state.b1.name : 'Booster 1'}</span>
+                        <i class="fa-solid fa-chevron-down text-[9px] text-slate-400 shrink-0"></i>
+                    </button>
+
+                    <div class="flex items-center gap-1 shrink-0 px-1">
+                        <span class="w-6 h-6 rounded-lg ${state.b1 ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300' : 'bg-ef-bg border-white/10 text-slate-600'} border flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-hexagon-nodes"></i>
+                        </span>
+                        <span class="w-6 h-6 rounded-lg ${state.b2 ? 'bg-ef-lime/20 border-ef-lime text-ef-lime' : 'bg-ef-bg border-white/10 text-slate-600'} border flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-hexagon-nodes"></i>
+                        </span>
+                    </div>
+
+                    <button onclick="openBoosterPicker(2)" class="flex-1 min-w-0 bg-ef-bg hover:bg-white/5 border border-white/10 hover:border-ef-lime px-2.5 py-2 rounded-xl flex items-center justify-between gap-1 transition">
+                        <span class="text-[11px] font-bold ${state.b2 ? 'text-ef-lime' : 'text-slate-400'} truncate">${state.b2 ? state.b2.name : 'Booster 2'}</span>
+                        <i class="fa-solid fa-chevron-down text-[9px] text-slate-400 shrink-0"></i>
+                    </button>
                 </div>
             </div>
             <div class="md:col-span-4 bg-ef-bg p-2.5 rounded-xl border border-white/5 space-y-2">
@@ -227,18 +300,27 @@ function renderPlayerModal() {
                 <button onclick="openPosModal()" class="w-full py-1.5 rounded bg-white/5 hover:bg-white/10 text-xs font-semibold text-ef-lime">Position Boosters (${state.posTokens.length}/2)</button>
             </div>
             <div class="md:col-span-3 bg-ef-bg p-3 rounded-xl border border-white/5 flex flex-col justify-between space-y-2">
-                <div>
-                    <div class="flex justify-between text-xs font-bold mb-1"><span class="text-ef-lime">Lv.${state.level}/${p.maxLvl}</span><span>Pts: <b class="text-ef-lime">${avail - used}</b>/${avail}</span></div>
-                    <input type="range" min="1" max="${p.maxLvl}" value="${state.level}" oninput="changeLevel(this.value)" class="ef-slider">
-                    <div class="flex gap-1.5 mt-2">
-                        <button onclick="autoAllocate(); renderPlayerModal()" class="flex-1 py-1 rounded bg-ef-lime text-black font-bold text-[11px]">Auto</button>
-                        <button onclick="resetPts(); renderPlayerModal()" class="flex-1 py-1 rounded bg-white/10 text-[11px]">Reset</button>
-                    </div>
-                </div>
-                <div class="space-y-1">
-                    ${cats.map(([k, lbl]) => `<div class="flex justify-between items-center text-[11px] bg-ef-surface px-2 py-1 rounded"><span>${lbl}</span><div class="flex items-center gap-1.5"><button onclick="stepPt('${k}',-1)" class="w-4 h-4 bg-white/10 rounded">-</button><b class="w-3 text-center text-ef-lime">${state.pts[k]}</b><button onclick="stepPt('${k}',1)" class="w-4 h-4 bg-white/10 rounded">+</button></div></div>`).join('')}
-                </div>
-            </div>
+    <div>
+        <div class="flex justify-between text-xs font-bold mb-1">
+            <span id="lvlText" class="text-ef-lime">Lv.${state.level}/${p.maxLvl}</span>
+            <span>Pts: <b id="ptsText" class="text-ef-lime">${avail - used}</b>/${avail}</span>
+        </div>
+        
+        <!-- Thanh trượt mượt mà không bị mất focus -->
+        <input type="range" min="1" max="${p.maxLvl}" value="${state.level}" 
+            oninput="handleLevelSliderInput(this.value)" 
+            onchange="renderPlayerModal()" 
+            class="ef-slider">
+            
+        <div class="flex gap-1.5 mt-2">
+            <button onclick="autoAllocate(); renderPlayerModal()" class="flex-1 py-1 rounded bg-ef-lime text-black font-bold text-[11px]">Auto</button>
+            <button onclick="resetPts(); renderPlayerModal()" class="flex-1 py-1 rounded bg-white/10 text-[11px]">Reset</button>
+        </div>
+    </div>
+    <div class="space-y-1">
+        ${cats.map(([k, lbl]) => `<div class="flex justify-between items-center text-[11px] bg-ef-surface px-2 py-1 rounded"><span>${lbl}</span><div class="flex items-center gap-1.5"><button onclick="stepPt('${k}',-1)" class="w-4 h-4 bg-white/10 rounded">-</button><b class="w-3 text-center text-ef-lime">${state.pts[k]}</b><button onclick="stepPt('${k}',1)" class="w-4 h-4 bg-white/10 rounded">+</button></div></div>`).join('')}
+    </div>
+</div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             ${groups.map(([title, keys]) => `
@@ -265,6 +347,31 @@ function renderPlayerModal() {
         </div>
         <div class="flex flex-wrap gap-1.5">${p.skills.map(sk => `<span class="px-2.5 py-1 rounded-md bg-ef-panel text-xs font-medium">${sk}</span>`).join('')}</div>
     `;
+}
+
+// Hàm xử lý khi đang kéo thanh trượt (Cập nhật số liệu trực tiếp, không làm mất focus hay render lại modal)
+function handleLevelSliderInput(val) {
+    state.level = parseInt(val, 10);
+    
+    // Tự động điều chỉnh điểm cộng nếu vượt quá giới hạn cấp độ mới
+    while (getUsedPts() > getAvailPts()) {
+        const k = CATS.find(c => state.pts[c] > 0);
+        if (k) state.pts[k]--;
+        else break;
+    }
+
+    const { ovr } = calcStats();
+    const avail = getAvailPts();
+    const used = getUsedPts();
+
+    // Cập nhật trực tiếp các text bằng ID
+    const lvlEl = document.getElementById('lvlText');
+    const ptsEl = document.getElementById('ptsText');
+    const ovrEl = document.getElementById('ovrText');
+
+    if (lvlEl) lvlEl.textContent = `Lv.${state.level}/${state.player.maxLvl}`;
+    if (ptsEl) ptsEl.textContent = `${avail - used}`;
+    if (ovrEl) ovrEl.textContent = ovr;
 }
 
 function changeLevel(val) { state.level = +val; while (getUsedPts() > getAvailPts()) { const k = CATS.find(c => state.pts[c] > 0); if (k) state.pts[k]--; else break; } renderPlayerModal(); }
@@ -309,10 +416,193 @@ function closeSubModal() {
     toggleEl('subModal', false);
 }
 
+function loadPlayerProfile(id) {
+    const found = PLAYERS.find(p => p.id === id);
+    if (!found) return;
+    
+    state.player = found;
+    state.level = found.maxLvl;
+    state.b1 = BOOSTERS.find(b => b.id === found.booster) || null;
+    state.b2 = null; 
+    state.posTokens = [];
+    autoAllocate();
+
+    // Render thẳng nội dung chi tiết vào container của trang player.html
+    document.getElementById('playerDetailContainer').innerHTML = `
+        <div class="flex items-center justify-between bg-ef-panel px-5 py-3.5 rounded-2xl border border-white/10">
+            <span class="text-xs font-extrabold uppercase px-2.5 py-1 rounded bg-ef-lime text-black">${state.player.card} • ${state.player.eraDate}</span>
+            <h1 class="font-display font-extrabold italic text-2xl uppercase">${state.player.name} (${state.player.pos})</h1>
+        </div>
+        <div id="modalBody" class="space-y-5"></div>
+    `;
+    renderPlayerModal(); // Hàm này sẽ tự động điền các chỉ số vào #modalBody
+}
+
 function handleSearch(val) { state.search = val.trim().toLowerCase(); document.getElementById('topSearch').value = val; document.getElementById('heroSearch').value = val; renderPlayers(); renderManagers(); }
-function resetAll() { state.search = ''; state.pos = 'ALL'; state.card = 'ALL'; state.showAll = false; document.getElementById('topSearch').value = ''; document.getElementById('heroSearch').value = ''; renderFilters(); renderPlayers(); renderManagers(); }
-function toggleEl(id, show) { const el = document.getElementById(id); el.classList.toggle('hidden', !show); el.classList.toggle('flex', show); }
+
+// ==================== AUTHENTICATION (SIGN IN & SIGN UP WITH VALIDATION) ====================
+let currentUser = localStorage.getItem('efhub_user') || null;
+let currentAuthMode = 'signup'; // 'signup' hoặc 'signin'
+
+// Lấy danh sách tài khoản đã đăng ký từ localStorage (nếu chưa có thì tạo mảng trống)
+function getRegisteredUsers() {
+    try {
+        return JSON.parse(localStorage.getItem('efhub_registered_users')) || [];
+    } catch(e) {
+        return [];
+    }
+}
+
+function updateAuthUI() {
+    const container = document.getElementById('authNavContainer');
+    if (!container) return;
+
+    if (currentUser) {
+        container.innerHTML = `
+            <div class="flex items-center gap-2 bg-ef-panel px-3 py-1 rounded-full border border-ef-lime/40">
+                <i class="fa-solid fa-user-check text-ef-lime text-xs"></i>
+                <span class="text-xs font-bold text-white">${currentUser}</span>
+                <button onclick="handleSignOut()" title="Sign Out" class="text-slate-400 hover:text-rose-400 ml-1 transition">
+                    <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                </button>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <button onclick="openAuthModal('signin')" class="bg-ef-surface hover:bg-white/10 text-white font-bold text-xs px-3.5 py-1.5 rounded-full border border-white/10 transition">
+                Sign In
+            </button>
+            <button onclick="openAuthModal('signup')" class="bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs px-3.5 py-1.5 rounded-full transition shadow-md">
+                Sign Up
+            </button>
+        `;
+    }
+}
+
+function openAuthModal(mode) {
+    currentAuthMode = mode;
+   
+    const emailGroup = document.getElementById('emailFieldGroup');
+    const subtitle = document.getElementById('authSubtitle');
+    const submitBtn = document.getElementById('authSubmitBtn');
+    const toggleText = document.getElementById('authToggleText');
+    const toggleBtn = document.getElementById('authToggleBtn');
+
+    // Reset form input mỗi khi mở modal
+    document.getElementById('authUsername').value = '';
+    document.getElementById('authPassword').value = '';
+    if(document.getElementById('authEmail')) document.getElementById('authEmail').value = '';
+
+    if (mode === 'signup') {
+        emailGroup.classList.remove('hidden');
+        subtitle.textContent = "Create an account to save your builds";
+        submitBtn.textContent = "Create Account";
+        toggleText.textContent = "Already have an account?";
+        toggleBtn.textContent = "Sign In";
+    } else {
+        emailGroup.classList.add('hidden');
+        subtitle.textContent = "Sign in to access your saved squads";
+        submitBtn.textContent = "Sign In";
+        toggleText.textContent = "Don't have an account?";
+        toggleBtn.textContent = "Sign Up";
+    }
+
+    toggleEl('authModal', true);
+}
+
+function switchAuthMode() {
+    openAuthModal(currentAuthMode === 'signup' ? 'signin' : 'signup');
+}
+
+function handleAuthSubmit(e) {
+    e.preventDefault();
+    const username = document.getElementById('authUsername').value.trim();
+    const password = document.getElementById('authPassword').value.trim();
+    const email = document.getElementById('authEmail') ? document.getElementById('authEmail').value.trim() : '';
+
+    if (!username || !password) {
+        toast('Vui lòng điền đầy đủ thông tin!');
+        return;
+    }
+
+    // Kiểm tra định dạng email cơ bản nếu ở chế độ Sign Up
+    if (currentAuthMode === 'signup' && email && !email.includes('@')) {
+        toast('Email không hợp lệ!');
+        return;
+    }
+
+    let users = getRegisteredUsers();
+
+    if (currentAuthMode === 'signup') {
+        // Kiểm tra xem tên tài khoản đã tồn tại chưa
+        const existingUser = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+        if (existingUser) {
+            toast('Tên tài khoản đã tồn tại!');
+            return;
+        }
+
+        // Đăng ký thành công
+        users.push({ username, email, password });
+        localStorage.setItem('efhub_registered_users', JSON.stringify(users));
+
+        currentUser = username;
+        localStorage.setItem('efhub_user', currentUser);
+
+        toggleEl('authModal', false);
+        updateAuthUI();
+        toast(`Đăng ký thành công! Chào mừng ${currentUser}!`);
+
+    } else {
+        // --- CHẾ ĐỘ SIGN IN ---
+        const inputVal = username.toLowerCase(); // Lấy giá trị nhập vào ô Username/Email
+
+        // Tìm xem có user nào khớp với Tên tài khoản HOẶC Email không
+        const foundUser = users.find(u => 
+            u.username.toLowerCase() === inputVal || 
+            (u.email && u.email.toLowerCase() === inputVal)
+        );
+
+        // Kiểm tra xem có phải người dùng nhập dạng email mà không tồn tại không
+        const isEmailFormat = inputVal.includes('@');
+
+        if (!foundUser) {
+            if (isEmailFormat) {
+                toast('Email không tồn tại!');
+            } else {
+                toast('Tài khoản không tồn tại!');
+            }
+            return;
+        }
+
+        // Kiểm tra sai mật khẩu
+        if (foundUser.password !== password) {
+            toast('Sai mật khẩu!');
+            return;
+        }
+
+        // Đăng nhập thành công
+        currentUser = foundUser.username;
+        localStorage.setItem('efhub_user', currentUser);
+
+        toggleEl('authModal', false);
+        updateAuthUI();
+        toast(`Đăng nhập thành công, chào ${currentUser}!`);
+    }
+}
+
+function handleSignOut() {
+    localStorage.removeItem('efhub_user');
+    currentUser = null;
+    updateAuthUI();
+    toast('Signed out successfully!');
+}
+
+// Khởi chạy trạng thái tài khoản khi load trang
+updateAuthUI();
+
 function toast(msg) { const t = document.getElementById('toast'); document.getElementById('toastMsg').textContent = msg; t.classList.remove('translate-y-20', 'opacity-0'); setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 2200); }
+
+
 
 // RENDER NGAY LẬP TỨC
 renderFilters(); renderPlayers(); renderManagers();
