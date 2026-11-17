@@ -39,7 +39,14 @@
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
                     <input id="topSearch" type="text" oninput="handleSearch(this.value)" placeholder="Search players & managers" class="w-full bg-ef-panel border border-white/5 focus:border-ef-lime rounded-lg pl-8 pr-3 py-1.5 text-xs outline-none">
                 </div>
-                <button onclick="resetAll()" class="bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs px-3.5 py-1.5 rounded-full transition">Reset</button>
+                <div id="authNavContainer" class="flex items-center gap-2">
+                    <button onclick="openAuthModal('signin')" class="bg-ef-surface hover:bg-white/10 text-white font-bold text-xs px-3.5 py-1.5 rounded-full border border-white/10 transition">
+                        Sign In
+                    </button>
+                    <button onclick="openAuthModal('signup')" class="bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs px-3.5 py-1.5 rounded-full transition shadow-md">
+                        Sign Up
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -113,10 +120,55 @@
         </div>
     </div>
 
-    <!-- TOAST -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 translate-y-20 opacity-0 transition-all bg-ef-panel border border-ef-lime text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2">
-        <i class="fa-solid fa-circle-check text-ef-lime"></i><span id="toastMsg"></span>
+<!-- AUTH MODAL (Dùng chung cho cả Sign In và Sign Up) -->
+<div id="authModal" onclick="if(event.target===this) toggleEl('authModal', false)" class="fixed inset-0 z-[70] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="w-full max-w-sm bg-ef-surface border border-white/10 rounded-2xl p-6 shadow-2xl space-y-5 relative">
+        <button onclick="toggleEl('authModal', false)" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="text-center space-y-1">
+            <div class="font-display italic font-extrabold text-3xl">
+                <span class="text-ef-lime">27</span><span>eFHUB</span>
+            </div>
+            <p id="authSubtitle" class="text-xs text-slate-400">Create an account to save your builds</p>
+        </div>
+
+        <form onsubmit="handleAuthSubmit(event)" class="space-y-3.5">
+            <!-- Thêm trường Email khi Sign Up -->
+            <div id="emailFieldGroup" class="hidden">
+    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Email Address</label>
+    <!-- Đổi từ type="email" thành type="text" -->
+    <input id="authEmail" type="text" placeholder="manager@efhub.com" class="w-full bg-ef-bg border border-white/10 focus:border-ef-lime rounded-xl px-3.5 py-2.5 text-xs text-white outline-none transition">
+</div>
+
+            <div>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Username</label>
+                <input id="authUsername" type="text" required placeholder="e.g. ProManager" class="w-full bg-ef-bg border border-white/10 focus:border-ef-lime rounded-xl px-3.5 py-2.5 text-xs text-white outline-none transition">
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Password</label>
+                <input id="authPassword" type="password" required placeholder="••••••••" class="w-full bg-ef-bg border border-white/10 focus:border-ef-lime rounded-xl px-3.5 py-2.5 text-xs text-white outline-none transition">
+            </div>
+
+            <button type="submit" id="authSubmitBtn" class="w-full py-2.5 rounded-xl bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs shadow-lg transition">
+                Sign Up
+            </button>
+        </form>
+
+        <!-- Chuyển đổi qua lại giữa Sign In và Sign Up -->
+        <div class="text-center text-xs text-slate-400 pt-2 border-t border-white/5">
+            <span id="authToggleText">Already have an account?</span>
+            <button type="button" onclick="switchAuthMode()" class="text-ef-lime font-bold ml-1 hover:underline" id="authToggleBtn">Sign In</button>
+        </div>
     </div>
+</div>
+
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-5 right-5 z-[9999] translate-y-20 opacity-0 transition-all duration-300 bg-[#1b1d24] border border-ef-lime text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-medium flex items-center gap-2.5">
+    <i class="fa-solid fa-circle-exclamation text-rose-400 text-sm" id="toastIcon"></i>
+    <span id="toastMsg"></span>
+</div>
 
     <script src="js_source.js" defer></script>
 </body>
