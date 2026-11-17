@@ -170,6 +170,18 @@ function openPlayer(id) {
     toggleEl('mainModal', true);
 }
 
+function getActiveBoosterStatBonuses() {
+    const bonuses = {};
+    [state.b1, state.b2].forEach(b => {
+        if (b && b.stats) {
+            Object.entries(b.stats).forEach(([k, val]) => {
+                bonuses[k] = (bonuses[k] || 0) + val;
+            });
+        }
+    });
+    return bonuses;
+}
+
 function renderPlayerModal() {
     const p = state.player, { s, ovr } = calcStats(), avail = getAvailPts(), used = getUsedPts();
     const posCell = (code) => {
@@ -179,6 +191,8 @@ function renderPlayerModal() {
         return `<div onclick="openPosModal()" class="${cls} rounded py-1 text-center cursor-pointer"><div class="text-[9px]">${code}</div><div class="font-display text-sm leading-none">${r}</div></div>`;
     };
     const cats = p.pos === 'GK' ? [['gk1','GK 1'],['gk2','GK 2'],['gk3','GK 3'],['aerial','Aerial']] : [['shooting','Shooting'],['passing','Passing'],['dribbling','Dribbling'],['dexterity','Dexterity'],['lowerBody','Lower Body'],['aerial','Aerial'],['defending','Defending']];
+    const boosterBonuses = getActiveBoosterStatBonuses();
+
     const groups = [
         ['Attacking', ['attackingAwareness','ballControl','dribbling','tightPossession','lowPass','loftedPass','finishing','heading','placeKicking','curl']],
         ['Physical',  ['speed','acceleration','kickingPower','jump','physicalContact','balance','stamina']],
@@ -227,7 +241,27 @@ function renderPlayerModal() {
             </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            ${groups.map(([title, keys]) => `<div class="bg-ef-bg p-3 rounded-xl border border-white/5"><h4 class="font-display font-bold text-sm text-ef-lime uppercase border-b border-white/10 pb-1.5 mb-2">${title}</h4>${keys.map(k => { const v = s[k], cls = v>=90?'stat-90':v>=80?'stat-80':v>=70?'stat-70':'stat-low', label = k.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); return `<div class="flex justify-between text-xs py-0.5"><span class="text-slate-400">${label}</span><span class="font-mono ${cls}">${v}</span></div>`; }).join('')}</div>`).join('')}
+            ${groups.map(([title, keys]) => `
+                <div class="bg-ef-bg p-3 rounded-xl border border-white/5">
+                    <h4 class="font-display font-bold text-sm text-ef-lime uppercase border-b border-white/10 pb-1.5 mb-2">${title}</h4>
+                    ${keys.map(k => {
+                        const v = s[k];
+                        const bVal = boosterBonuses[k] || 0;
+                        const cls = v >= 90 ? 'stat-90' : v >= 80 ? 'stat-80' : v >= 70 ? 'stat-70' : 'stat-low';
+                        const label = k.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                        
+                        return `
+                            <div class="flex justify-between items-center text-xs py-0.5">
+                                <span class="text-slate-400">${label}</span>
+                                <div class="flex items-center gap-1.5">
+                                    ${bVal > 0 ? `<span class="text-[10px] font-bold text-ef-lime bg-ef-lime/10 px-1 rounded">+${bVal}</span>` : ''}
+                                    <span class="font-mono ${cls}">${v}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `).join('')}
         </div>
         <div class="flex flex-wrap gap-1.5">${p.skills.map(sk => `<span class="px-2.5 py-1 rounded-md bg-ef-panel text-xs font-medium">${sk}</span>`).join('')}</div>
     `;
@@ -257,6 +291,22 @@ function openManager(id) {
     document.getElementById('modalBadge').textContent = 'MANAGER'; document.getElementById('modalTitle').textContent = m.name;
     document.getElementById('modalBody').innerHTML = `<div class="flex items-center gap-4 bg-ef-panel p-4 rounded-xl"><img src="${m.image}" onerror="this.classList.add('hidden')" class="w-16 h-16 rounded-xl object-cover bg-ef-bg"><div class="space-y-1 text-xs"><div>Club: <b>${m.club}</b></div><div class="text-ef-lime font-bold">Booster: ${m.booster}</div><div class="text-slate-400">${m.desc}</div></div></div><div class="space-y-2.5 bg-ef-bg p-4 rounded-xl">${Object.entries(m.prof).map(([k, v]) => `<div><div class="flex justify-between text-xs font-bold mb-1"><span>${k.replace(/([A-Z])/g,' $1')}</span><span class="${v>=85?'text-ef-lime':''}">${v}</span></div><div class="h-1.5 bg-ef-panel rounded-full overflow-hidden"><div class="h-full ${v>=85?'bg-ef-lime':'bg-sky-500'}" style="width:${v}%"></div></div></div>`).join('')}</div>`;
     toggleEl('mainModal', true);
+}
+
+// ==================== MODAL TOGGLE & CLOSE HELPERS ====================
+function toggleEl(id, show) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('hidden', !show);
+    el.classList.toggle('flex', show);
+}
+
+function closeModal() {
+    toggleEl('mainModal', false);
+}
+
+function closeSubModal() {
+    toggleEl('subModal', false);
 }
 
 function handleSearch(val) { state.search = val.trim().toLowerCase(); document.getElementById('topSearch').value = val; document.getElementById('heroSearch').value = val; renderPlayers(); renderManagers(); }
