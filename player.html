@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Details - eFHUB 27</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;1,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Cấu hình màu sắc đồng bộ với trang chủ -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Barlow Condensed', 'sans-serif'] },
+                    colors: { ef: { bg: '#121318', surface: '#1b1d24', panel: '#252832', lime: '#d4fc24', limeHover: '#e2ff52' } }
+                }
+            }
+        }
+    </script>
+
+    <!-- Đảm bảo tên file CSS khớp với file trên máy của bạn (css_source.css hoặc main_style.css) -->
+    <link rel="stylesheet" href="css_source.css">
+</head>
+<body class="bg-ef-bg text-white antialiased p-4 sm:p-8 selection:bg-ef-lime selection:text-black">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+        <!-- Nút quay lại trang chủ -->
+        <div class="flex items-center justify-between">
+            <a href="index.html" class="inline-flex items-center gap-2 text-xs font-bold bg-ef-surface hover:bg-ef-panel px-4 py-2.5 rounded-xl border border-white/10 transition">
+                <i class="fa-solid fa-arrow-left text-ef-lime"></i> Back to Home
+            </a>
+            <span class="font-display italic font-extrabold text-2xl">
+                <span class="text-ef-lime">27</span><span>eFHUB</span>
+            </span>
+        </div>
+
+        <!-- Khu vực hiển thị chi tiết cầu thủ -->
+        <div id="playerDetailContainer" class="space-y-5"></div>
+    </div>
+
+    <!-- Sub-modal chọn Booster / Position Booster -->
+    <div id="subModal" onclick="if(event.target===this) closeSubModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-3 bg-black/85 backdrop-blur-sm">
+        <div class="w-full max-w-md max-h-[85vh] bg-ef-surface border border-white/10 rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                <h4 id="subModalTitle" class="font-bold text-sm">Select Booster</h4>
+                <button onclick="closeSubModal()" class="w-7 h-7 rounded-lg hover:bg-white/10 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="subModalBody" class="overflow-y-auto p-4 space-y-2.5"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 translate-y-20 opacity-0 transition-all bg-ef-panel border border-ef-lime text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-ef-lime"></i><span id="toastMsg"></span>
+    </div>
+
+    <!-- Đảm bảo tên file JS khớp với file trên máy của bạn (js_source.js hoặc main_data.js) -->
+    <script src="js_source.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const playerId = parseInt(urlParams.get('id'), 10);
+            
+            if (playerId && typeof loadPlayerProfile === 'function') {
+                loadPlayerProfile(playerId);
+            } else {
+                document.getElementById('playerDetailContainer').innerHTML = `
+                    <div class="bg-ef-surface border border-white/10 rounded-2xl p-8 text-center">
+                        <p class="text-rose-400 font-bold mb-3">Player not found or invalid ID!</p>
+                        <a href="index.html" class="bg-ef-lime text-black font-bold text-xs px-4 py-2 rounded-lg">Return Home</a>
+                    </div>`;
+            }
+        });
+    </script>
+</body>
+</html>
