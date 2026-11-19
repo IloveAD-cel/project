@@ -29,9 +29,9 @@
                 <a href="#" onclick="resetAll()" class="flex items-center gap-1.5 font-display italic font-extrabold text-2xl">
                     <span class="text-ef-lime">27</span><span>eFHUB</span>
                 </a>
-                <nav class="flex items-center gap-5 text-sm font-medium">
-                    <button onclick="scrollToSection('playersSection')" class="text-white hover:text-ef-lime transition">Players</button>
-                    <button onclick="scrollToSection('managersSection')" class="text-slate-400 hover:text-ef-lime transition">Managers</button>
+                <nav id="mainNav" class="flex items-center gap-5 text-sm font-medium">
+                    <button id="navPlayersBtn" type="button" onclick="switchNavTab('players')" class="text-slate-400 hover:text-ef-lime transition cursor-pointer">Players</button>
+                    <button id="navManagersBtn" type="button" onclick="switchNavTab('managers')" class="text-slate-400 hover:text-ef-lime transition cursor-pointer">Managers</button>
                 </nav>
             </div>
             <div class="flex items-center gap-2.5">
@@ -40,10 +40,10 @@
                     <input id="topSearch" type="text" oninput="handleSearch(this.value)" placeholder="Search players & managers" class="w-full bg-ef-panel border border-white/5 focus:border-ef-lime rounded-lg pl-8 pr-3 py-1.5 text-xs outline-none">
                 </div>
                 <div id="authNavContainer" class="flex items-center gap-2">
-                    <button onclick="openAuthModal('signin')" class="bg-ef-surface hover:bg-white/10 text-white font-bold text-xs px-3.5 py-1.5 rounded-full border border-white/10 transition">
+                    <button id="openSignInBtn" onclick="openAuthModal('signin')" class="bg-ef-surface hover:bg-white/10 text-white font-bold text-xs px-3.5 py-1.5 rounded-full border border-white/10 transition">
                         Sign In
                     </button>
-                    <button onclick="openAuthModal('signup')" class="bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs px-3.5 py-1.5 rounded-full transition shadow-md">
+                    <button id="openSignUpBtn" onclick="openAuthModal('signup')" class="bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs px-3.5 py-1.5 rounded-full transition shadow-md">
                         Sign Up
                     </button>
                 </div>
@@ -120,12 +120,14 @@
         </div>
     </div>
 
-<!-- AUTH MODAL (Dùng chung cho cả Sign In và Sign Up) -->
-<div id="authModal" onclick="if(event.target===this) toggleEl('authModal', false)" class="fixed inset-0 z-[70] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+<!-- AUTH MODAL -->
+<div id="authModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
     <div class="w-full max-w-sm bg-ef-surface border border-white/10 rounded-2xl p-6 shadow-2xl space-y-5 relative">
-        <button onclick="toggleEl('authModal', false)" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition">
+        <!-- Nút đóng (dấu X) -->
+        <button type="button" id="closeAuthModalBtn" class="absolute top-4 right-4 w-8 h-8 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition cursor-pointer">
             <i class="fa-solid fa-xmark"></i>
         </button>
+        
         <div class="text-center space-y-1">
             <div class="font-display italic font-extrabold text-3xl">
                 <span class="text-ef-lime">27</span><span>eFHUB</span>
@@ -133,33 +135,30 @@
             <p id="authSubtitle" class="text-xs text-slate-400">Create an account to save your builds</p>
         </div>
 
-        <form onsubmit="handleAuthSubmit(event)" class="space-y-3.5">
-            <!-- Thêm trường Email khi Sign Up -->
-            <div id="emailFieldGroup" class="hidden">
-    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Email Address</label>
-    <!-- Đổi từ type="email" thành type="text" -->
-    <input id="authEmail" type="text" placeholder="manager@efhub.com" class="w-full bg-ef-bg border border-white/10 focus:border-ef-lime rounded-xl px-3.5 py-2.5 text-xs text-white outline-none transition">
-</div>
+        <form id="authForm" class="space-y-3.5">
+    <div id="emailFieldGroup">
+        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Email Address</label>
+        <input id="authEmail" type="email" required placeholder="manager@efhub.com" class="w-full bg-ef-bg border border-white/10 focus:border-ef-lime rounded-xl px-3.5 py-2.5 text-xs text-white outline-none transition">
+    </div>
 
-            <div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Username</label>
-                <input id="authUsername" type="text" required placeholder="e.g. ProManager" class="w-full bg-ef-bg border border-white/10 focus:border-ef-lime rounded-xl px-3.5 py-2.5 text-xs text-white outline-none transition">
-            </div>
+    <div id="usernameFieldGroup">
+        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Username</label>
+        <input id="authUsername" type="text" placeholder="e.g. ProManager" class="w-full bg-ef-bg border border-white/10 focus:border-ef-lime rounded-xl px-3.5 py-2.5 text-xs text-white outline-none transition">
+    </div>
 
-            <div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Password</label>
-                <input id="authPassword" type="password" required placeholder="••••••••" class="w-full bg-ef-bg border border-white/10 focus:border-ef-lime rounded-xl px-3.5 py-2.5 text-xs text-white outline-none transition">
-            </div>
+    <div>
+        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Password</label>
+        <input id="authPassword" type="password" required placeholder="••••••••" class="w-full bg-ef-bg border border-white/10 focus:border-ef-lime rounded-xl px-3.5 py-2.5 text-xs text-white outline-none transition">
+    </div>
 
-            <button type="submit" id="authSubmitBtn" class="w-full py-2.5 rounded-xl bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs shadow-lg transition">
-                Sign Up
-            </button>
-        </form>
+    <button type="submit" id="authSubmitBtn" class="w-full py-2.5 rounded-xl bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs shadow-lg transition cursor-pointer">
+        Sign Up
+    </button>
+</form>
 
-        <!-- Chuyển đổi qua lại giữa Sign In và Sign Up -->
         <div class="text-center text-xs text-slate-400 pt-2 border-t border-white/5">
             <span id="authToggleText">Already have an account?</span>
-            <button type="button" onclick="switchAuthMode()" class="text-ef-lime font-bold ml-1 hover:underline" id="authToggleBtn">Sign In</button>
+            <button type="button" id="authToggleBtn" class="text-ef-lime font-bold ml-1 hover:underline cursor-pointer">Sign In</button>
         </div>
     </div>
 </div>
@@ -170,6 +169,7 @@
     <span id="toastMsg"></span>
 </div>
 
-    <script src="js_source.js" defer></script>
+    <script type="module" src="js_source.js"></script>
+    
 </body>
 </html>
