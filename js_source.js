@@ -1,4 +1,36 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "",
+  authDomain: "efhub-4fb3e.firebaseapp.com",
+  projectId: "efhub-4fb3e",
+  storageBucket: "efhub-4fb3e.firebasestorage.app",
+  messagingSenderId: "144553165940",
+  appId: "1:144553165940:web:5c9d85051eb95ebe103d21",
+  measurementId: "G-BDS3ZTE25J"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 let state = { search: '', pos: 'ALL', card: 'ALL', showAll: false, player: null, level: 1, b1: null, b2: null, posTokens: [], pts: {} };
+let currentAuthMode = 'signup';
+let currentUser = null;
+let currentUserProfile = null;
 const CATS = ['shooting', 'passing', 'dribbling', 'dexterity', 'lowerBody', 'aerial', 'defending', 'gk1', 'gk2', 'gk3'];
 
 const BOOSTERS = [
@@ -34,7 +66,6 @@ function buildStats(type, boost = 0) {
     return obj;
 }
 
-// 1. LINK ẢNH LOCAL: Đặt file ảnh PNG cùng thư mục với file HTML
 const PLAYERS = [
     { id: 1, name: "Lionel Messi", eraDate: "01 Dec '09", image: "messi_2009.png", pos: "SS", baseOvr: 90, maxOvr: 107, card: "BigTime", theme: "card-bigtime", booster: "fantasista", fullPos: ["SS","RWF","AMF"], secPos: ["CF","RMF"], club: "FC Barcelona '09", league: "Spanish League", nation: "Argentina", flag: "🇦🇷", style: "Roaming Flank", maxLvl: 35, age: 22, height: 170, weight: 72, foot: "Left", condition: "B", arch: "wizard", boost: 3, skills: ["Double Touch","Marseille Turn","Long-Range Curler","First-time Shot","One-touch Pass","Through Passing"] },
     { id: 2, name: "Lamine Yamal", eraDate: "Live '26", image: "yamal_2026.png", pos: "RWF", baseOvr: 87, maxOvr: 105, card: "Trending", theme: "card-trending", booster: "ball_carrying", fullPos: ["RWF","RMF"], secPos: ["AMF","SS","LWF"], club: "FC Barcelona", league: "Spanish League", nation: "Spain", flag: "🇪🇸", style: "Prolific Winger", maxLvl: 38, age: 19, height: 180, weight: 72, foot: "Left", condition: "A", arch: "wizard", boost: 3, skills: ["Double Touch","Flip Flap","Long-Range Curler","Outside Curler","Through Passing","Pinpoint Crossing"] },
@@ -54,11 +85,13 @@ const MANAGERS = [
     { id: 3, name: "Carlo Ancelotti", image: "ancelotti.png", club: "Madrid Chamartin", booster: "+1 Ball Control", desc: "Increases Ball Control by +1 for all players.", style: "Long Ball Counter", prof: { Possession: 82, QuickCounter: 87, LongBallCounter: 88, OutWide: 75, LongBall: 65 } }
 ];
 
-// ==================== RENDER UI ====================
 function renderFilters() {
+    const filterBars = document.getElementById('filterBars');
+    if (!filterBars) return;
+
     const positions = ['ALL', 'CF', 'SS', 'RWF', 'LWF', 'AMF', 'CMF', 'DMF', 'CB', 'LB', 'GK'];
     const cards = ['ALL', 'BigTime', 'Epic', 'Legend', 'ShowTime', 'Trending'];
-    document.getElementById('filterBars').innerHTML = `
+    filterBars.innerHTML = `
         <select onchange="state.pos=this.value; renderPlayers()" class="bg-ef-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs outline-none">
             ${positions.map(p => `<option value="${p}" ${state.pos===p?'selected':''}>POS: ${p}</option>`).join('')}
         </select>
@@ -78,52 +111,63 @@ function renderPlayers() {
     const displayed = (state.showAll || isFiltering) ? list : list.slice(0, 5);
 
     const btn = document.getElementById('toggleAllBtn');
-    btn.style.display = isFiltering ? 'none' : 'inline-block';
-    btn.innerHTML = state.showAll ? 'Show less <i class="fa-solid fa-arrow-up ml-1"></i>' : `See all new players (${list.length}) <i class="fa-solid fa-arrow-right ml-1"></i>`;
+    if (btn) {
+        btn.style.display = isFiltering ? 'none' : 'inline-block';
+        btn.innerHTML = state.showAll ? 'Show less <i class="fa-solid fa-arrow-up ml-1"></i>' : `See all new players (${list.length}) <i class="fa-solid fa-arrow-right ml-1"></i>`;
+    }
 
-    document.getElementById('playersGrid').innerHTML = displayed.length ? displayed.map(p => `
-        <div onclick="openPlayer(${p.id})" class="ef-card ${p.theme} rounded-xl p-2.5 cursor-pointer aspect-[3/4.2] flex flex-col justify-between select-none">
-            <!-- NẾU CHƯA TẢI ẢNH, DÒNG ONERROR SẼ ẨN ẢNH ĐI ĐỂ KHÔNG HIỆN ICON LỖI, BẠN CẦN LƯU ẢNH VÀO MÁY NHÉ -->
-            <img src="${p.image}" onerror="this.classList.add('hidden')" class="portrait-mask absolute inset-0 w-full h-full">
-            <div class="relative z-10 flex justify-between items-start">
-                <div class="bg-black/60 backdrop-blur-sm px-1.5 py-1 rounded leading-none">
-                    <div class="font-display font-extrabold text-2xl">${p.baseOvr}</div>
-                    <div class="font-display font-bold text-xs text-amber-300">${p.pos}</div>
+    const grid = document.getElementById('playersGrid');
+    if (grid) {
+        grid.innerHTML = displayed.length ? displayed.map(p => `
+            <div onclick="openPlayer(${p.id})" class="ef-card ${p.theme} rounded-xl p-2.5 cursor-pointer aspect-[3/4.2] flex flex-col justify-between select-none">
+                <img src="${p.image}" onerror="this.classList.add('hidden')" class="portrait-mask absolute inset-0 w-full h-full">
+                <div class="relative z-10 flex justify-between items-start">
+                    <div class="bg-black/60 backdrop-blur-sm px-1.5 py-1 rounded leading-none">
+                        <div class="font-display font-extrabold text-2xl">${p.baseOvr}</div>
+                        <div class="font-display font-bold text-xs text-amber-300">${p.pos}</div>
+                    </div>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="text-[10px] font-black bg-black/70 text-ef-lime px-1.5 py-0.5 rounded border border-white/10">MAX ${p.maxOvr}</span>
+                        <span class="text-[9px] font-bold bg-black/75 text-amber-200 px-1.5 py-0.5 rounded border border-white/10">${p.eraDate}</span>
+                    </div>
                 </div>
-                <div class="flex flex-col items-end gap-1">
-                    <span class="text-[10px] font-black bg-black/70 text-ef-lime px-1.5 py-0.5 rounded border border-white/10">MAX ${p.maxOvr}</span>
-                    <span class="text-[9px] font-bold bg-black/75 text-amber-200 px-1.5 py-0.5 rounded border border-white/10">${p.eraDate}</span>
+                <div class="relative z-10 bg-gradient-to-t from-black/95 via-black/80 to-transparent -mx-2.5 -mb-2.5 p-2.5 pt-6 text-center">
+                    <div class="font-bold text-xs truncate">${p.name}</div>
+                    <div class="flex justify-center gap-1 mt-1">
+                        <span class="w-4 h-4 rounded-full bg-emerald-500/20 border border-emerald-400 text-[9px] flex items-center justify-center text-emerald-300"><i class="fa-solid fa-bolt"></i></span>
+                        <span class="w-4 h-4 rounded-full bg-emerald-500/20 border border-emerald-400 text-[9px] flex items-center justify-center text-emerald-300"><i class="fa-solid fa-plus"></i></span>
+                    </div>
                 </div>
             </div>
-            <div class="relative z-10 bg-gradient-to-t from-black/95 via-black/80 to-transparent -mx-2.5 -mb-2.5 p-2.5 pt-6 text-center">
-                <div class="font-bold text-xs truncate">${p.name}</div>
-                <div class="flex justify-center gap-1 mt-1">
-                    <span class="w-4 h-4 rounded-full bg-emerald-500/20 border border-emerald-400 text-[9px] flex items-center justify-center text-emerald-300"><i class="fa-solid fa-bolt"></i></span>
-                    <span class="w-4 h-4 rounded-full bg-emerald-500/20 border border-emerald-400 text-[9px] flex items-center justify-center text-emerald-300"><i class="fa-solid fa-plus"></i></span>
-                </div>
-            </div>
-        </div>
-    `).join('') : `<p class="col-span-full text-center text-slate-400 py-8 text-sm">No players found.</p>`;
+        `).join('') : `<p class="col-span-full text-center text-slate-400 py-8 text-sm">No players found.</p>`;
+    }
+}
+
+function toggleShowAllPlayers() {
+    state.showAll = !state.showAll;
+    renderPlayers();
 }
 
 function renderManagers() {
     const list = MANAGERS.filter(m => !state.search || [m.name, m.club, m.style].some(v => v.toLowerCase().includes(state.search)));
-    document.getElementById('managersGrid').innerHTML = list.map(m => `
-        <div onclick="openManager(${m.id})" class="group cursor-pointer text-center space-y-2">
-            <div class="relative aspect-square rounded-2xl bg-ef-surface border-2 border-white/15 group-hover:border-ef-lime overflow-hidden transition">
-                <img src="${m.image}" onerror="this.classList.add('hidden')" class="w-full h-full object-cover object-top">
-                <div class="absolute bottom-1.5 inset-x-0 flex justify-center gap-1">
-                    <span class="px-2 py-0.5 rounded bg-black/80 border border-emerald-400 text-emerald-300 text-[10px] font-bold flex items-center gap-1">
-                        <i class="fa-solid fa-bolt text-[9px]"></i> ${Math.max(...Object.values(m.prof))}
-                    </span>
+    const grid = document.getElementById('managersGrid');
+    if (grid) {
+        grid.innerHTML = list.map(m => `
+            <div onclick="openManager(${m.id})" class="group cursor-pointer text-center space-y-2">
+                <div class="relative aspect-square rounded-2xl bg-ef-surface border-2 border-white/15 group-hover:border-ef-lime overflow-hidden transition">
+                    <img src="${m.image}" onerror="this.classList.add('hidden')" class="w-full h-full object-cover object-top">
+                    <div class="absolute bottom-1.5 inset-x-0 flex justify-center gap-1">
+                        <span class="px-2 py-0.5 rounded bg-black/80 border border-emerald-400 text-emerald-300 text-[10px] font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-bolt text-[9px]"></i> ${Math.max(...Object.values(m.prof))}
+                        </span>
+                    </div>
                 </div>
+                <div class="text-xs font-semibold text-slate-200 group-hover:text-ef-lime truncate">${m.name}</div>
             </div>
-            <div class="text-xs font-semibold text-slate-200 group-hover:text-ef-lime truncate">${m.name}</div>
-        </div>
-    `).join('');
+        `).join('');
+    }
 }
 
-// ==================== PROGRESSION & STATS ENGINE ====================
 function resetPts() { CATS.forEach(c => state.pts[c] = 0); }
 const getAvailPts = () => (state.level - 1) * 2;
 const getStepCost = (lvl) => lvl <= 4 ? 1 : lvl <= 8 ? 2 : 3;
@@ -157,7 +201,43 @@ function calcStats() {
     return { s, ovr };
 }
 
-// ==================== MODALS ====================
+function resetAll() {
+    window.location.href = `index.html`;   
+}
+
+function switchNavTab(tab) {
+    const navButtons = {
+        players: document.getElementById('navPlayersBtn'),
+        managers: document.getElementById('navManagersBtn')
+    };
+
+    Object.entries(navButtons).forEach(([key, btn]) => {
+        if (!btn) return;
+        btn.className = key === tab
+            ? 'text-ef-lime font-bold transition cursor-pointer'
+            : 'text-slate-400 hover:text-ef-lime transition cursor-pointer';
+    });
+
+    if (tab === 'home') {
+        state.search = '';
+        state.pos = 'ALL';
+        state.card = 'ALL';
+        state.showAll = false;
+        if (document.getElementById('topSearch')) document.getElementById('topSearch').value = '';
+        if (document.getElementById('heroSearch')) document.getElementById('heroSearch').value = '';
+        renderFilters();
+        renderPlayers();
+        renderManagers();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (tab === 'players') {
+        const el = document.getElementById('playersSection');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    } else if (tab === 'managers') {
+        const el = document.getElementById('managersSection');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
 function openPlayer(id) {
     window.location.href = `player.html?id=${id}`;
 }
@@ -174,9 +254,8 @@ function getActiveBoosterStatBonuses() {
     return bonuses;
 }
 
-function renderPlayerModal(isSliding = false) {
+function renderPlayerModal() {
     const p = state.player, { s, ovr } = calcStats(), avail = getAvailPts(), used = getUsedPts();
-    
     const posCell = (code) => {
         const isFull = p.fullPos.includes(code) || state.posTokens.includes(code), isSec = p.secPos.includes(code);
         const r = code === p.pos ? ovr : isFull ? ovr - 1 : isSec ? ovr - 4 : (p.pos === 'GK' || code === 'GK' ? 48 : ovr - 14);
@@ -185,190 +264,156 @@ function renderPlayerModal(isSliding = false) {
     };
     const cats = p.pos === 'GK' ? [['gk1','GK 1'],['gk2','GK 2'],['gk3','GK 3'],['aerial','Aerial']] : [['shooting','Shooting'],['passing','Passing'],['dribbling','Dribbling'],['dexterity','Dexterity'],['lowerBody','Lower Body'],['aerial','Aerial'],['defending','Defending']];
     const boosterBonuses = getActiveBoosterStatBonuses();
-
     const groups = [
         ['Attacking', ['attackingAwareness','ballControl','dribbling','tightPossession','lowPass','loftedPass','finishing','heading','placeKicking','curl']],
         ['Physical',  ['speed','acceleration','kickingPower','jump','physicalContact','balance','stamina']],
         ['Def & GK',  ['defensiveAwareness','tackling','aggression','defensiveEngagement','gkAwareness','gkCatching','gkParrying','gkReflexes','gkReach']]
     ];
-    document.getElementById('modalBody').innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-ef-panel/60 p-4 rounded-xl border border-white/5">
-            <div class="md:col-span-5 flex flex-col justify-between gap-3">
-                <div class="grid grid-cols-12 gap-2 items-stretch">
-                    
-                    <!-- Left Column: Nation -> Club -> League -->
-                    <div class="col-span-3 flex flex-col justify-between gap-1.5">
-                        <div title="${p.nation}" class="flex-1 bg-ef-bg border border-white/10 rounded-xl p-1.5 flex flex-col items-center justify-center text-center">
-                            <span class="text-xl leading-none">${p.flag || '🏳️'}</span>
-                            <span class="text-[9px] font-bold text-slate-300 truncate w-full mt-1">${p.nation}</span>
-                        </div>
-                        <div title="${p.club}" class="flex-1 bg-ef-bg border border-white/10 rounded-xl p-1.5 flex flex-col items-center justify-center text-center">
-                            <i class="fa-solid fa-shield-halved text-base text-ef-lime"></i>
-                            <span class="text-[9px] font-bold text-slate-300 truncate w-full mt-1">${p.club}</span>
-                        </div>
-                        <div title="${p.league}" class="flex-1 bg-ef-bg border border-white/10 rounded-xl p-1.5 flex flex-col items-center justify-center text-center">
-                            <i class="fa-solid fa-trophy text-sm text-amber-400"></i>
-                            <span class="text-[9px] font-bold text-slate-300 truncate w-full mt-1">${p.league || 'League'}</span>
-                        </div>
-                    </div>
-
-                    <!-- Center Column: Player Card Picture -->
-                    <div class="col-span-6">
-                        <div class="${p.theme} w-full aspect-[3/4.3] rounded-xl p-2 flex flex-col justify-between relative overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.6)]">
-                            <img src="${p.image}" onerror="this.classList.add('hidden')" class="portrait-mask absolute inset-0 w-full h-full">
-                            
-                            <!-- Top OVR, Pos & Tier -->
-                            <div class="relative z-10 flex justify-between items-start">
-                                <div class="bg-black/60 backdrop-blur-sm px-1.5 py-1 rounded leading-none">
-                                    <div id="ovrText" class="font-display font-extrabold text-2xl text-white">${ovr}</div>
-                                    <div class="font-display font-bold text-xs text-amber-300">${p.pos}</div>
-                                </div>
-                                <span class="bg-black/75 text-ef-lime font-black text-[10px] px-1.5 py-0.5 rounded border border-white/10">S</span>
+    const modalBody = document.getElementById('modalBody');
+    if (modalBody) {
+        modalBody.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-ef-panel/60 p-4 rounded-xl border border-white/5">
+                <div class="md:col-span-5 flex flex-col justify-between gap-3">
+                    <div class="grid grid-cols-12 gap-2 items-stretch">
+                        <div class="col-span-3 flex flex-col justify-between gap-1.5">
+                            <div title="${p.nation}" class="flex-1 bg-ef-bg border border-white/10 rounded-xl p-1.5 flex flex-col items-center justify-center text-center">
+                                <span class="text-xl leading-none">${p.flag || '🏳️'}</span>
+                                <span class="text-[9px] font-bold text-slate-300 truncate w-full mt-1">${p.nation}</span>
                             </div>
-
-                            <!-- Bottom Nameplate, Booster Hex Icons & Stars -->
-                            <div class="relative z-10 bg-gradient-to-t from-black/95 via-black/80 to-transparent -mx-2 -mb-2 p-2 pt-5 text-center">
-                                <div class="font-bold text-xs text-white truncate drop-shadow">${p.name}</div>
-                                <div class="flex items-center justify-center gap-1.5 mt-1">
-                                    <span class="w-4 h-4 rounded-full ${state.b1 ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300' : 'bg-white/5 border-white/15 text-slate-500'} border text-[8px] flex items-center justify-center">
-                                        <i class="fa-solid fa-bolt"></i>
-                                    </span>
-                                    <span class="w-4 h-4 rounded-full ${state.b2 ? 'bg-ef-lime/20 border-ef-lime text-ef-lime' : 'bg-white/5 border-white/15 text-slate-500'} border text-[8px] flex items-center justify-center">
-                                        <i class="fa-solid fa-plus"></i>
-                                    </span>
+                            <div title="${p.club}" class="flex-1 bg-ef-bg border border-white/10 rounded-xl p-1.5 flex flex-col items-center justify-center text-center">
+                                <i class="fa-solid fa-shield-halved text-base text-ef-lime"></i>
+                                <span class="text-[9px] font-bold text-slate-300 truncate w-full mt-1">${p.club}</span>
+                            </div>
+                            <div title="${p.league}" class="flex-1 bg-ef-bg border border-white/10 rounded-xl p-1.5 flex flex-col items-center justify-center text-center">
+                                <i class="fa-solid fa-trophy text-sm text-amber-400"></i>
+                                <span class="text-[9px] font-bold text-slate-300 truncate w-full mt-1">${p.league || 'League'}</span>
+                            </div>
+                        </div>
+                        <div class="col-span-6">
+                            <div class="${p.theme} w-full aspect-[3/4.3] rounded-xl p-2 flex flex-col justify-between relative overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.6)]">
+                                <img src="${p.image}" onerror="this.classList.add('hidden')" class="portrait-mask absolute inset-0 w-full h-full">
+                                <div class="relative z-10 flex justify-between items-start">
+                                    <div class="bg-black/60 backdrop-blur-sm px-1.5 py-1 rounded leading-none">
+                                        <div id="ovrText" class="font-display font-extrabold text-2xl text-white">${ovr}</div>
+                                        <div class="font-display font-bold text-xs text-amber-300">${p.pos}</div>
+                                    </div>
+                                    <span class="bg-black/75 text-ef-lime font-black text-[10px] px-1.5 py-0.5 rounded border border-white/10">S</span>
                                 </div>
-                                <div class="flex justify-center gap-0.5 mt-1 text-[8px] text-amber-400">
-                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                <div class="relative z-10 bg-gradient-to-t from-black/95 via-black/80 to-transparent -mx-2 -mb-2 p-2 pt-5 text-center">
+                                    <div class="font-bold text-xs text-white truncate drop-shadow">${p.name}</div>
+                                    <div class="flex items-center justify-center gap-1.5 mt-1">
+                                        <span class="w-4 h-4 rounded-full ${state.b1 ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300' : 'bg-white/5 border-white/15 text-slate-500'} border text-[8px] flex items-center justify-center"><i class="fa-solid fa-bolt"></i></span>
+                                        <span class="w-4 h-4 rounded-full ${state.b2 ? 'bg-ef-lime/20 border-ef-lime text-ef-lime' : 'bg-white/5 border-white/15 text-slate-500'} border text-[8px] flex items-center justify-center"><i class="fa-solid fa-plus"></i></span>
+                                    </div>
+                                    <div class="flex justify-center gap-0.5 mt-1 text-[8px] text-amber-400">
+                                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <div class="col-span-3 flex flex-col justify-between gap-1">
+                            <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
+                                <div class="text-[9px] text-slate-400 leading-tight">Height</div>
+                                <div class="text-[11px] font-bold text-white leading-tight">${p.height}cm</div>
+                            </div>
+                            <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
+                                <div class="text-[9px] text-slate-400 leading-tight">Weight</div>
+                                <div class="text-[11px] font-bold text-white leading-tight">${p.weight || 75}kg</div>
+                            </div>
+                            <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
+                                <div class="text-[9px] text-slate-400 leading-tight">Age</div>
+                                <div class="text-[11px] font-bold text-white leading-tight">${p.age}</div>
+                            </div>
+                            <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
+                                <div class="text-[9px] text-slate-400 leading-tight">Foot</div>
+                                <div class="text-[11px] font-bold text-white leading-tight">${p.foot}</div>
+                            </div>
+                            <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
+                                <div class="text-[9px] text-slate-400 leading-tight">Condition</div>
+                                <div class="text-[11px] font-extrabold ${p.condition === 'A' ? 'text-emerald-400' : 'text-ef-lime'} leading-tight">${p.condition || 'B'}</div>
+                            </div>
+                        </div>
                     </div>
-
-                    <!-- Right Column: Height -> Weight -> Age -> Foot -> Condition -->
-                    <div class="col-span-3 flex flex-col justify-between gap-1">
-                        <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
-                            <div class="text-[9px] text-slate-400 leading-tight">Height</div>
-                            <div class="text-[11px] font-bold text-white leading-tight">${p.height}cm</div>
+                    <div class="flex items-center gap-1.5 pt-1">
+                        <button onclick="openBoosterPicker(1)" class="flex-1 min-w-0 bg-ef-bg hover:bg-white/5 border border-white/10 hover:border-cyan-400 px-2.5 py-2 rounded-xl flex items-center justify-between gap-1 transition">
+                            <span class="text-[11px] font-bold text-cyan-400 truncate">${state.b1 ? state.b1.name : 'Booster 1'}</span>
+                            <i class="fa-solid fa-chevron-down text-[9px] text-slate-400 shrink-0"></i>
+                        </button>
+                        <div class="flex items-center gap-1 shrink-0 px-1">
+                            <span class="w-6 h-6 rounded-lg ${state.b1 ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300' : 'bg-ef-bg border-white/10 text-slate-600'} border flex items-center justify-center text-xs"><i class="fa-solid fa-hexagon-nodes"></i></span>
+                            <span class="w-6 h-6 rounded-lg ${state.b2 ? 'bg-ef-lime/20 border-ef-lime text-ef-lime' : 'bg-ef-bg border-white/10 text-slate-600'} border flex items-center justify-center text-xs"><i class="fa-solid fa-hexagon-nodes"></i></span>
                         </div>
-                        <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
-                            <div class="text-[9px] text-slate-400 leading-tight">Weight</div>
-                            <div class="text-[11px] font-bold text-white leading-tight">${p.weight || 75}kg</div>
-                        </div>
-                        <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
-                            <div class="text-[9px] text-slate-400 leading-tight">Age</div>
-                            <div class="text-[11px] font-bold text-white leading-tight">${p.age}</div>
-                        </div>
-                        <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
-                            <div class="text-[9px] text-slate-400 leading-tight">Foot</div>
-                            <div class="text-[11px] font-bold text-white leading-tight">${p.foot}</div>
-                        </div>
-                        <div class="bg-ef-bg border border-white/10 rounded-lg py-1 px-1.5 text-center">
-                            <div class="text-[9px] text-slate-400 leading-tight">Condition</div>
-                            <div class="text-[11px] font-extrabold ${p.condition === 'A' ? 'text-emerald-400' : 'text-ef-lime'} leading-tight">${p.condition || 'B'}</div>
-                        </div>
+                        <button onclick="openBoosterPicker(2)" class="flex-1 min-w-0 bg-ef-bg hover:bg-white/5 border border-white/10 hover:border-ef-lime px-2.5 py-2 rounded-xl flex items-center justify-between gap-1 transition">
+                            <span class="text-[11px] font-bold ${state.b2 ? 'text-ef-lime' : 'text-slate-400'} truncate">${state.b2 ? state.b2.name : 'Booster 2'}</span>
+                            <i class="fa-solid fa-chevron-down text-[9px] text-slate-400 shrink-0"></i>
+                        </button>
                     </div>
                 </div>
-
-                <!-- Bottom Row: Booster 1 Dropdown | Dual Hex Icons | Booster 2 Dropdown -->
-                <div class="flex items-center gap-1.5 pt-1">
-                    <button onclick="openBoosterPicker(1)" class="flex-1 min-w-0 bg-ef-bg hover:bg-white/5 border border-white/10 hover:border-cyan-400 px-2.5 py-2 rounded-xl flex items-center justify-between gap-1 transition">
-                        <span class="text-[11px] font-bold text-cyan-400 truncate">${state.b1 ? state.b1.name : 'Booster 1'}</span>
-                        <i class="fa-solid fa-chevron-down text-[9px] text-slate-400 shrink-0"></i>
-                    </button>
-
-                    <div class="flex items-center gap-1 shrink-0 px-1">
-                        <span class="w-6 h-6 rounded-lg ${state.b1 ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300' : 'bg-ef-bg border-white/10 text-slate-600'} border flex items-center justify-center text-xs">
-                            <i class="fa-solid fa-hexagon-nodes"></i>
-                        </span>
-                        <span class="w-6 h-6 rounded-lg ${state.b2 ? 'bg-ef-lime/20 border-ef-lime text-ef-lime' : 'bg-ef-bg border-white/10 text-slate-600'} border flex items-center justify-center text-xs">
-                            <i class="fa-solid fa-hexagon-nodes"></i>
-                        </span>
+                <div class="md:col-span-4 bg-ef-bg p-2.5 rounded-xl border border-white/5 space-y-2">
+                    <div class="grid grid-cols-3 gap-1">
+                        ${posCell('LWF')} <div class="space-y-1">${posCell('CF')}${posCell('SS')}</div> ${posCell('RWF')}
+                        ${posCell('LMF')} <div class="space-y-1">${posCell('AMF')}${posCell('CMF')}${posCell('DMF')}</div> ${posCell('RMF')}
+                        ${posCell('LB')}  <div class="space-y-1">${posCell('CB')}${posCell('GK')}</div> ${posCell('RB')}
                     </div>
-
-                    <button onclick="openBoosterPicker(2)" class="flex-1 min-w-0 bg-ef-bg hover:bg-white/5 border border-white/10 hover:border-ef-lime px-2.5 py-2 rounded-xl flex items-center justify-between gap-1 transition">
-                        <span class="text-[11px] font-bold ${state.b2 ? 'text-ef-lime' : 'text-slate-400'} truncate">${state.b2 ? state.b2.name : 'Booster 2'}</span>
-                        <i class="fa-solid fa-chevron-down text-[9px] text-slate-400 shrink-0"></i>
-                    </button>
+                    <button onclick="openPosModal()" class="w-full py-1.5 rounded bg-white/5 hover:bg-white/10 text-xs font-semibold text-ef-lime">Position Boosters (${state.posTokens.length}/2)</button>
+                </div>
+                <div class="md:col-span-3 bg-ef-bg p-3 rounded-xl border border-white/5 flex flex-col justify-between space-y-2">
+                    <div>
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span id="lvlText" class="text-ef-lime">Lv.${state.level}/${p.maxLvl}</span>
+                            <span>Pts: <b id="ptsText" class="text-ef-lime">${avail - used}</b>/${avail}</span>
+                        </div>
+                        <input type="range" min="1" max="${p.maxLvl}" value="${state.level}" oninput="handleLevelSliderInput(this.value)" onchange="renderPlayerModal()" class="ef-slider">
+                        <div class="flex gap-1.5 mt-2">
+                            <button onclick="autoAllocate(); renderPlayerModal()" class="flex-1 py-1 rounded bg-ef-lime text-black font-bold text-[11px]">Auto</button>
+                            <button onclick="resetPts(); renderPlayerModal()" class="flex-1 py-1 rounded bg-white/10 text-[11px]">Reset</button>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        ${cats.map(([k, lbl]) => `<div class="flex justify-between items-center text-[11px] bg-ef-surface px-2 py-1 rounded"><span>${lbl}</span><div class="flex items-center gap-1.5"><button onclick="stepPt('${k}',-1)" class="w-4 h-4 bg-white/10 rounded">-</button><b class="w-3 text-center text-ef-lime">${state.pts[k]}</b><button onclick="stepPt('${k}',1)" class="w-4 h-4 bg-white/10 rounded">+</button></div></div>`).join('')}
+                    </div>
                 </div>
             </div>
-            <div class="md:col-span-4 bg-ef-bg p-2.5 rounded-xl border border-white/5 space-y-2">
-                <div class="grid grid-cols-3 gap-1">
-                    ${posCell('LWF')} <div class="space-y-1">${posCell('CF')}${posCell('SS')}</div> ${posCell('RWF')}
-                    ${posCell('LMF')} <div class="space-y-1">${posCell('AMF')}${posCell('CMF')}${posCell('DMF')}</div> ${posCell('RMF')}
-                    ${posCell('LB')}  <div class="space-y-1">${posCell('CB')}${posCell('GK')}</div> ${posCell('RB')}
-                </div>
-                <button onclick="openPosModal()" class="w-full py-1.5 rounded bg-white/5 hover:bg-white/10 text-xs font-semibold text-ef-lime">Position Boosters (${state.posTokens.length}/2)</button>
-            </div>
-            <div class="md:col-span-3 bg-ef-bg p-3 rounded-xl border border-white/5 flex flex-col justify-between space-y-2">
-    <div>
-        <div class="flex justify-between text-xs font-bold mb-1">
-            <span id="lvlText" class="text-ef-lime">Lv.${state.level}/${p.maxLvl}</span>
-            <span>Pts: <b id="ptsText" class="text-ef-lime">${avail - used}</b>/${avail}</span>
-        </div>
-        
-        <!-- Thanh trượt mượt mà không bị mất focus -->
-        <input type="range" min="1" max="${p.maxLvl}" value="${state.level}" 
-            oninput="handleLevelSliderInput(this.value)" 
-            onchange="renderPlayerModal()" 
-            class="ef-slider">
-            
-        <div class="flex gap-1.5 mt-2">
-            <button onclick="autoAllocate(); renderPlayerModal()" class="flex-1 py-1 rounded bg-ef-lime text-black font-bold text-[11px]">Auto</button>
-            <button onclick="resetPts(); renderPlayerModal()" class="flex-1 py-1 rounded bg-white/10 text-[11px]">Reset</button>
-        </div>
-    </div>
-    <div class="space-y-1">
-        ${cats.map(([k, lbl]) => `<div class="flex justify-between items-center text-[11px] bg-ef-surface px-2 py-1 rounded"><span>${lbl}</span><div class="flex items-center gap-1.5"><button onclick="stepPt('${k}',-1)" class="w-4 h-4 bg-white/10 rounded">-</button><b class="w-3 text-center text-ef-lime">${state.pts[k]}</b><button onclick="stepPt('${k}',1)" class="w-4 h-4 bg-white/10 rounded">+</button></div></div>`).join('')}
-    </div>
-</div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            ${groups.map(([title, keys]) => `
-                <div class="bg-ef-bg p-3 rounded-xl border border-white/5">
-                    <h4 class="font-display font-bold text-sm text-ef-lime uppercase border-b border-white/10 pb-1.5 mb-2">${title}</h4>
-                    ${keys.map(k => {
-                        const v = s[k];
-                        const bVal = boosterBonuses[k] || 0;
-                        const cls = v >= 90 ? 'stat-90' : v >= 80 ? 'stat-80' : v >= 70 ? 'stat-70' : 'stat-low';
-                        const label = k.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-                        
-                        return `
-                            <div class="flex justify-between items-center text-xs py-0.5">
-                                <span class="text-slate-400">${label}</span>
-                                <div class="flex items-center gap-1.5">
-                                    ${bVal > 0 ? `<span class="text-[10px] font-bold text-ef-lime bg-ef-lime/10 px-1 rounded">+${bVal}</span>` : ''}
-                                    <span class="font-mono ${cls}">${v}</span>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                ${groups.map(([title, keys]) => `
+                    <div class="bg-ef-bg p-3 rounded-xl border border-white/5">
+                        <h4 class="font-display font-bold text-sm text-ef-lime uppercase border-b border-white/10 pb-1.5 mb-2">${title}</h4>
+                        ${keys.map(k => {
+                            const v = s[k];
+                            const bVal = boosterBonuses[k] || 0;
+                            const cls = v >= 90 ? 'stat-90' : v >= 80 ? 'stat-80' : v >= 70 ? 'stat-70' : 'stat-low';
+                            const label = k.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                            return `
+                                <div class="flex justify-between items-center text-xs py-0.5">
+                                    <span class="text-slate-400">${label}</span>
+                                    <div class="flex items-center gap-1.5">
+                                        ${bVal > 0 ? `<span class="text-[10px] font-bold text-ef-lime bg-ef-lime/10 px-1 rounded">+${bVal}</span>` : ''}
+                                        <span class="font-mono ${cls}">${v}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `).join('')}
-        </div>
-        <div class="flex flex-wrap gap-1.5">${p.skills.map(sk => `<span class="px-2.5 py-1 rounded-md bg-ef-panel text-xs font-medium">${sk}</span>`).join('')}</div>
-    `;
+                            `;
+                        }).join('')}
+                    </div>
+                `).join('')}
+            </div>
+            <div class="flex flex-wrap gap-1.5">${p.skills.map(sk => `<span class="px-2.5 py-1 rounded-md bg-ef-panel text-xs font-medium">${sk}</span>`).join('')}</div>
+        `;
+    }
 }
 
-// Hàm xử lý khi đang kéo thanh trượt (Cập nhật số liệu trực tiếp, không làm mất focus hay render lại modal)
 function handleLevelSliderInput(val) {
     state.level = parseInt(val, 10);
-    
-    // Tự động điều chỉnh điểm cộng nếu vượt quá giới hạn cấp độ mới
     while (getUsedPts() > getAvailPts()) {
         const k = CATS.find(c => state.pts[c] > 0);
         if (k) state.pts[k]--;
         else break;
     }
-
     const { ovr } = calcStats();
     const avail = getAvailPts();
     const used = getUsedPts();
-
-    // Cập nhật trực tiếp các text bằng ID
     const lvlEl = document.getElementById('lvlText');
     const ptsEl = document.getElementById('ptsText');
     const ovrEl = document.getElementById('ovrText');
-
     if (lvlEl) lvlEl.textContent = `Lv.${state.level}/${state.player.maxLvl}`;
     if (ptsEl) ptsEl.textContent = `${avail - used}`;
     if (ovrEl) ovrEl.textContent = ovr;
@@ -400,7 +445,6 @@ function openManager(id) {
     toggleEl('mainModal', true);
 }
 
-// ==================== MODAL TOGGLE & CLOSE HELPERS ====================
 function toggleEl(id, show) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -408,26 +452,18 @@ function toggleEl(id, show) {
     el.classList.toggle('flex', show);
 }
 
-function closeModal() {
-    toggleEl('mainModal', false);
-}
-
-function closeSubModal() {
-    toggleEl('subModal', false);
-}
+function closeModal() { toggleEl('mainModal', false); }
+function closeSubModal() { toggleEl('subModal', false); }
 
 function loadPlayerProfile(id) {
     const found = PLAYERS.find(p => p.id === id);
     if (!found) return;
-    
     state.player = found;
     state.level = found.maxLvl;
     state.b1 = BOOSTERS.find(b => b.id === found.booster) || null;
-    state.b2 = null; 
+    state.b2 = null;
     state.posTokens = [];
     autoAllocate();
-
-    // Render thẳng nội dung chi tiết vào container của trang player.html
     document.getElementById('playerDetailContainer').innerHTML = `
         <div class="flex items-center justify-between bg-ef-panel px-5 py-3.5 rounded-2xl border border-white/10">
             <span class="text-xs font-extrabold uppercase px-2.5 py-1 rounded bg-ef-lime text-black">${state.player.card} • ${state.player.eraDate}</span>
@@ -435,21 +471,63 @@ function loadPlayerProfile(id) {
         </div>
         <div id="modalBody" class="space-y-5"></div>
     `;
-    renderPlayerModal(); // Hàm này sẽ tự động điền các chỉ số vào #modalBody
+    renderPlayerModal();
 }
 
-function handleSearch(val) { state.search = val.trim().toLowerCase(); document.getElementById('topSearch').value = val; document.getElementById('heroSearch').value = val; renderPlayers(); renderManagers(); }
+function handleSearch(val) {
+    state.search = val.trim().toLowerCase();
+    if (document.getElementById('topSearch')) document.getElementById('topSearch').value = val;
+    if (document.getElementById('heroSearch')) document.getElementById('heroSearch').value = val;
+    renderPlayers();
+    renderManagers();
+}
 
-// ==================== AUTHENTICATION (SIGN IN & SIGN UP WITH VALIDATION) ====================
-let currentUser = localStorage.getItem('efhub_user') || null;
-let currentAuthMode = 'signup'; // 'signup' hoặc 'signin'
+async function saveUserProfile(user, username) {
+    const cleanName = (username || (user.email ? user.email.split('@')[0] : 'Manager')).trim();
+    const userRef = doc(db, 'users', user.uid);
+    const snap = await getDoc(userRef);
 
-// Lấy danh sách tài khoản đã đăng ký từ localStorage (nếu chưa có thì tạo mảng trống)
-function getRegisteredUsers() {
-    try {
-        return JSON.parse(localStorage.getItem('efhub_registered_users')) || [];
-    } catch(e) {
-        return [];
+    const profileData = snap.exists()
+        ? {
+            ...snap.data(),
+            username: username ? cleanName : (snap.data().username || cleanName),
+            email: user.email || snap.data().email || '',
+            updatedAt: new Date().toISOString()
+        }
+        : {
+            username: cleanName,
+            email: user.email || '',
+            savedBuilds: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+
+    await setDoc(userRef, profileData, { merge: true });
+    return profileData;
+}
+
+async function loadUserProfile(user) {
+    const userRef = doc(db, 'users', user.uid);
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+        return snap.data();
+    }
+    return {
+        username: user.email ? user.email.split('@')[0] : 'Manager',
+        email: user.email || '',
+        savedBuilds: []
+    };
+}
+
+function setAuthModalOpen(isOpen) {
+    const modal = document.getElementById('authModal');
+    if (!modal) return;
+    if (isOpen) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    } else {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
     }
 }
 
@@ -458,21 +536,26 @@ function updateAuthUI() {
     if (!container) return;
 
     if (currentUser) {
+        const displayName =
+            currentUserProfile?.username ||
+            currentUser.displayName ||
+            (currentUser.email ? currentUser.email.split('@')[0] : 'User');
+
         container.innerHTML = `
             <div class="flex items-center gap-2 bg-ef-panel px-3 py-1 rounded-full border border-ef-lime/40">
                 <i class="fa-solid fa-user-check text-ef-lime text-xs"></i>
-                <span class="text-xs font-bold text-white">${currentUser}</span>
-                <button onclick="handleSignOut()" title="Sign Out" class="text-slate-400 hover:text-rose-400 ml-1 transition">
+                <span class="text-xs font-bold text-white">${displayName}</span>
+                <button type="button" id="signOutBtn" title="Sign Out" class="text-slate-400 hover:text-rose-400 ml-1 transition cursor-pointer">
                     <i class="fa-solid fa-right-from-bracket text-xs"></i>
                 </button>
             </div>
         `;
     } else {
         container.innerHTML = `
-            <button onclick="openAuthModal('signin')" class="bg-ef-surface hover:bg-white/10 text-white font-bold text-xs px-3.5 py-1.5 rounded-full border border-white/10 transition">
+            <button type="button" id="openSignInBtn" onclick="openAuthModal('signin')" class="bg-ef-surface hover:bg-white/10 text-white font-bold text-xs px-3.5 py-1.5 rounded-full border border-white/10 transition cursor-pointer">
                 Sign In
             </button>
-            <button onclick="openAuthModal('signup')" class="bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs px-3.5 py-1.5 rounded-full transition shadow-md">
+            <button type="button" id="openSignUpBtn" onclick="openAuthModal('signup')" class="bg-ef-lime hover:bg-ef-limeHover text-black font-bold text-xs px-3.5 py-1.5 rounded-full transition shadow-md cursor-pointer">
                 Sign Up
             </button>
         `;
@@ -481,128 +564,200 @@ function updateAuthUI() {
 
 function openAuthModal(mode) {
     currentAuthMode = mode;
-   
     const emailGroup = document.getElementById('emailFieldGroup');
+    const usernameGroup = document.getElementById('usernameFieldGroup');
+    const emailInputEl = document.getElementById('authEmail');
+    const usernameInputEl = document.getElementById('authUsername');
+    const passwordInputEl = document.getElementById('authPassword');
     const subtitle = document.getElementById('authSubtitle');
     const submitBtn = document.getElementById('authSubmitBtn');
     const toggleText = document.getElementById('authToggleText');
     const toggleBtn = document.getElementById('authToggleBtn');
 
-    // Reset form input mỗi khi mở modal
-    document.getElementById('authUsername').value = '';
-    document.getElementById('authPassword').value = '';
-    if(document.getElementById('authEmail')) document.getElementById('authEmail').value = '';
+    if (emailInputEl) emailInputEl.value = '';
+    if (usernameInputEl) usernameInputEl.value = '';
+    if (passwordInputEl) passwordInputEl.value = '';
 
     if (mode === 'signup') {
-        emailGroup.classList.remove('hidden');
-        subtitle.textContent = "Create an account to save your builds";
-        submitBtn.textContent = "Create Account";
-        toggleText.textContent = "Already have an account?";
-        toggleBtn.textContent = "Sign In";
+        if (emailGroup) emailGroup.classList.remove('hidden');
+        if (usernameGroup) usernameGroup.classList.remove('hidden');
+        if (emailInputEl) emailInputEl.required = true;
+        if (usernameInputEl) usernameInputEl.required = true;
+        if (subtitle) subtitle.textContent = "Create a cloud account to sync your builds";
+        if (submitBtn) submitBtn.textContent = "Create Account";
+        if (toggleText) toggleText.textContent = "Already have an account?";
+        if (toggleBtn) toggleBtn.textContent = "Sign In";
     } else {
-        emailGroup.classList.add('hidden');
-        subtitle.textContent = "Sign in to access your saved squads";
-        submitBtn.textContent = "Sign In";
-        toggleText.textContent = "Don't have an account?";
-        toggleBtn.textContent = "Sign Up";
+        if (emailGroup) emailGroup.classList.remove('hidden');
+        if (usernameGroup) usernameGroup.classList.add('hidden');
+        if (emailInputEl) emailInputEl.required = true;
+        if (usernameInputEl) usernameInputEl.required = false;
+        if (subtitle) subtitle.textContent = "Sign in with your email to access cloud squads";
+        if (submitBtn) submitBtn.textContent = "Sign In";
+        if (toggleText) toggleText.textContent = "Don't have an account?";
+        if (toggleBtn) toggleBtn.textContent = "Sign Up";
     }
 
-    toggleEl('authModal', true);
+    setAuthModalOpen(true);
 }
 
-function switchAuthMode() {
-    openAuthModal(currentAuthMode === 'signup' ? 'signin' : 'signup');
-}
-
-function handleAuthSubmit(e) {
+async function handleAuthSubmit(e) {
     e.preventDefault();
-    const username = document.getElementById('authUsername').value.trim();
-    const password = document.getElementById('authPassword').value.trim();
-    const email = document.getElementById('authEmail') ? document.getElementById('authEmail').value.trim() : '';
+    const pass = document.getElementById('authPassword')?.value.trim() || '';
+    const usernameInput = document.getElementById('authUsername')?.value.trim() || '';
+    const emailInput = document.getElementById('authEmail')?.value.trim() || '';
+    const submitBtn = document.getElementById('authSubmitBtn');
 
-    if (!username || !password) {
-        toast('Vui lòng điền đầy đủ thông tin!');
+    if (!emailInput || !pass) {
+        toast('Vui lòng nhập đầy đủ Email và Password!');
         return;
     }
 
-    // Kiểm tra định dạng email cơ bản nếu ở chế độ Sign Up
-    if (currentAuthMode === 'signup' && email && !email.includes('@')) {
-        toast('Email không hợp lệ!');
-        return;
+    const originalText = submitBtn ? submitBtn.textContent : 'Sign In';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing...';
     }
 
-    let users = getRegisteredUsers();
+    try {
+        if (currentAuthMode === 'signup') {
+            const cred = await createUserWithEmailAndPassword(auth, emailInput, pass);
+            currentUser = cred.user;
+            currentUserProfile = await saveUserProfile(cred.user, usernameInput);
+            updateAuthUI();
+            toast(`Đăng ký thành công! Xin chào ${currentUserProfile.username}`);
+        } else {
+            const cred = await signInWithEmailAndPassword(auth, emailInput, pass);
+            currentUser = cred.user;
+            // Cập nhật Navbar ngay lập tức không cần đợi Firestore
+            updateAuthUI();
+            setAuthModalOpen(false);
+            toast('Đăng nhập thành công!');
 
-    if (currentAuthMode === 'signup') {
-        // Kiểm tra xem tên tài khoản đã tồn tại chưa
-        const existingUser = users.find(u => u.username.toLowerCase() === username.toLowerCase());
-        if (existingUser) {
-            toast('Tên tài khoản đã tồn tại!');
+            // Tải thêm profile từ Firestore ở nền
+            loadUserProfile(cred.user).then(profile => {
+                currentUserProfile = profile;
+                updateAuthUI();
+            }).catch(() => {});
             return;
         }
+        setAuthModalOpen(false);
+    } catch (error) {
+        toast(`Lỗi: ${error.message}`);
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    }
+}
 
-        // Đăng ký thành công
-        users.push({ username, email, password });
-        localStorage.setItem('efhub_registered_users', JSON.stringify(users));
-
-        currentUser = username;
-        localStorage.setItem('efhub_user', currentUser);
-
-        toggleEl('authModal', false);
+async function handleSignOut() {
+    try {
+        await signOut(auth);
+        currentUser = null;
+        currentUserProfile = null;
         updateAuthUI();
-        toast(`Đăng ký thành công! Chào mừng ${currentUser}!`);
+        toast('Đã đăng xuất.');
+    } catch (error) {
+        toast(`Lỗi đăng xuất: ${error.message}`);
+    }
+}
 
+onAuthStateChanged(auth, async (user) => {
+    currentUser = user || null;
+    if (user) {
+        try {
+            currentUserProfile = await loadUserProfile(user);
+        } catch (err) {
+            currentUserProfile = {
+                username: user.email ? user.email.split('@')[0] : 'Manager',
+                email: user.email || ''
+            };
+        }
     } else {
-        // --- CHẾ ĐỘ SIGN IN ---
-        const inputVal = username.toLowerCase(); // Lấy giá trị nhập vào ô Username/Email
-
-        // Tìm xem có user nào khớp với Tên tài khoản HOẶC Email không
-        const foundUser = users.find(u => 
-            u.username.toLowerCase() === inputVal || 
-            (u.email && u.email.toLowerCase() === inputVal)
-        );
-
-        // Kiểm tra xem có phải người dùng nhập dạng email mà không tồn tại không
-        const isEmailFormat = inputVal.includes('@');
-
-        if (!foundUser) {
-            if (isEmailFormat) {
-                toast('Email không tồn tại!');
-            } else {
-                toast('Tài khoản không tồn tại!');
-            }
-            return;
-        }
-
-        // Kiểm tra sai mật khẩu
-        if (foundUser.password !== password) {
-            toast('Sai mật khẩu!');
-            return;
-        }
-
-        // Đăng nhập thành công
-        currentUser = foundUser.username;
-        localStorage.setItem('efhub_user', currentUser);
-
-        toggleEl('authModal', false);
-        updateAuthUI();
-        toast(`Đăng nhập thành công, chào ${currentUser}!`);
+        currentUserProfile = null;
     }
-}
-
-function handleSignOut() {
-    localStorage.removeItem('efhub_user');
-    currentUser = null;
     updateAuthUI();
-    toast('Signed out successfully!');
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const authNavContainer = document.getElementById('authNavContainer');
+    if (authNavContainer) {
+        authNavContainer.addEventListener('click', (e) => {
+            if (e.target.closest('#openSignInBtn')) {
+                openAuthModal('signin');
+            } else if (e.target.closest('#openSignUpBtn')) {
+                openAuthModal('signup');
+            } else if (e.target.closest('#signOutBtn')) {
+                handleSignOut();
+            }
+        });
+    }
+
+    const authForm = document.getElementById('authForm');
+    if (authForm) {
+        authForm.addEventListener('submit', handleAuthSubmit);
+    }
+
+    const toggleBtn = document.getElementById('authToggleBtn');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            openAuthModal(currentAuthMode === 'signup' ? 'signin' : 'signup');
+        });
+    }
+
+    const closeBtn = document.getElementById('closeAuthModalBtn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => setAuthModalOpen(false));
+    }
+
+    const authModal = document.getElementById('authModal');
+    if (authModal) {
+        authModal.addEventListener('click', (e) => {
+            if (e.target === authModal) {
+                setAuthModalOpen(false);
+            }
+        });
+    }
+
+    updateAuthUI();
+});
+
+function toast(msg) {
+    const t = document.getElementById('toast');
+    const msgEl = document.getElementById('toastMsg');
+    if (!t || !msgEl) return;
+    msgEl.textContent = msg;
+    t.classList.remove('translate-y-20', 'opacity-0');
+    setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 2200);
 }
 
-// Khởi chạy trạng thái tài khoản khi load trang
-updateAuthUI();
-
-function toast(msg) { const t = document.getElementById('toast'); document.getElementById('toastMsg').textContent = msg; t.classList.remove('translate-y-20', 'opacity-0'); setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 2200); }
-
-
+// BIND TO WINDOW SCOPE
+window.openAuthModal = openAuthModal;
+window.setAuthModalOpen = setAuthModalOpen;
+window.handleAuthSubmit = handleAuthSubmit;
+window.handleSignOut = handleSignOut;
+window.resetAll = resetAll;
+window.switchNavTab = switchNavTab;
+window.openPlayer = openPlayer;
+window.changeLevel = changeLevel;
+window.openManager = openManager;
+window.closeModal = closeModal;
+window.closeSubModal = closeSubModal;
+window.loadPlayerProfile = loadPlayerProfile;
+window.handleLevelSliderInput = handleLevelSliderInput;
+window.renderPlayerModal = renderPlayerModal;
+window.autoAllocate = autoAllocate;
+window.resetPts = resetPts;
+window.stepPt = stepPt;
+window.openBoosterPicker = openBoosterPicker;
+window.setBooster = setBooster;
+window.openPosModal = openPosModal;
+window.togglePosToken = togglePosToken;
+window.toggleShowAllPlayers = toggleShowAllPlayers;
 
 // RENDER NGAY LẬP TỨC
-renderFilters(); renderPlayers(); renderManagers();
+renderFilters();
+renderPlayers();
+renderManagers();
