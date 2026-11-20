@@ -14,7 +14,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "",
+  apiKey: ${{secrets.API_KEY}},
   authDomain: "efhub-4fb3e.firebaseapp.com",
   projectId: "efhub-4fb3e",
   storageBucket: "efhub-4fb3e.firebasestorage.app",
